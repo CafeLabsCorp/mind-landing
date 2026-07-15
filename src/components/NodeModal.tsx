@@ -51,7 +51,7 @@ export function NodeModal({ node, onClose }: NodeModalProps) {
     <AnimatePresence>
       {node && (
         <motion.div
-          className="modal-backdrop"
+          className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 p-5 backdrop-blur-[2px]"
           initial={reduceMotion ? false : { opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -61,7 +61,7 @@ export function NodeModal({ node, onClose }: NodeModalProps) {
           }}
         >
           <motion.div
-            className="modal"
+            className="relative w-full max-w-[400px] rounded-[var(--radius)] border border-border bg-surface p-5.5 shadow-[0_24px_60px_-20px_rgba(0,0,0,0.6)]"
             role="dialog"
             aria-modal="true"
             aria-labelledby="modalTitle"
@@ -74,21 +74,30 @@ export function NodeModal({ node, onClose }: NodeModalProps) {
             transition={{ duration: 0.18 }}
           >
             <button
-              className="modal-close"
+              className="absolute top-1.5 right-1.5 flex h-11 w-11 cursor-pointer items-center justify-center rounded-lg border-none bg-transparent text-xl text-subtle hover:bg-surface-2 hover:text-fg"
               aria-label="Fechar exemplo"
               onClick={onClose}
             >
               &times;
             </button>
-            <div className="modal-head">
-              <span className="modal-dot" aria-hidden="true" />
-              <h3 id="modalTitle">{node.label}</h3>
+            <div className="mb-1 flex items-center gap-[9px] pr-9">
+              <span
+                className="h-[9px] w-[9px] shrink-0 rounded-full bg-green"
+                aria-hidden="true"
+              />
+              <h3 id="modalTitle" className="text-[17px]">
+                {node.label}
+              </h3>
             </div>
-            <span className="modal-path mono" id="modalPath">
+            <span className="mono mb-3.5 block text-xs text-subtle" id="modalPath">
               {node.path}
             </span>
-            <pre className="modal-body mono">{node.body}</pre>
-            <p className="modal-caption">{node.caption}</p>
+            <pre className="mono mb-3 max-h-[220px] overflow-y-auto rounded-[9px] border border-border bg-code-bg px-3.5 py-3 text-[12.5px] leading-[1.7] whitespace-pre-wrap text-muted">
+              {node.body}
+            </pre>
+            <p className="m-0 text-[12.5px] text-subtle italic">
+              {node.caption}
+            </p>
           </motion.div>
         </motion.div>
       )}

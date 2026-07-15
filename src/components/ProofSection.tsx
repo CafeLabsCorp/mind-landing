@@ -138,17 +138,24 @@ export function ProofSection() {
   }, [inView]);
 
   return (
-    <section id="prova">
-      <div className="wrap">
-        <Reveal className="section-head" as="div">
-          <span className="eyebrow eyebrow-muted">prova, não promessa</span>
-          <h2>Não é conceito. É um repo real.</h2>
-          <p>
+    <section
+      id="prova"
+      className="border-t border-border py-22 max-[860px]:py-14"
+    >
+      <div className="mx-auto max-w-[1120px] px-6">
+        <Reveal className="mb-13 max-w-[640px]" as="div">
+          <span className="mb-4 inline-flex items-center gap-2 rounded-full border border-border px-3 py-1.5 font-mono text-[12.5px] text-subtle">
+            prova, não promessa
+          </span>
+          <h2 className="text-4xl leading-[1.15] max-[860px]:text-[28px]">
+            Não é conceito. É um repo real.
+          </h2>
+          <p className="mt-3.5 text-[17px] text-muted">
             O comando de setup e a árvore de pastas abaixo são exatamente o
             que está no repositório hoje.
           </p>
         </Reveal>
-        <div className="proof-grid">
+        <div className="grid grid-cols-[1.05fr_0.95fr] items-start gap-6 max-[860px]:grid-cols-1">
           <Reveal as="div">
             <div className="terminal" ref={terminalRef}>
               <div className="term-bar">

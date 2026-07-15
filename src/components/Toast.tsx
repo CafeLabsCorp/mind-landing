@@ -35,7 +35,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     <ToastContext.Provider value={value}>
       {children}
       <div
-        className="toast-anchor"
+        className="fixed bottom-6 left-1/2 z-[100] -translate-x-1/2"
         role="status"
         aria-live="polite"
         aria-atomic="true"
@@ -44,7 +44,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
           {message && (
             <motion.div
               key={message}
-              className="toast"
+              className="w-max max-w-[calc(100vw-32px)] rounded-[10px] border border-green bg-surface px-4.5 py-3 text-center font-mono text-[13.5px] whitespace-normal text-fg shadow-[0_10px_30px_-10px_rgba(0,0,0,0.5)]"
               initial={reduceMotion ? false : { opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 20 }}

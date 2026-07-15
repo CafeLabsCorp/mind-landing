@@ -1,5 +1,25 @@
 @import "tailwindcss";
 
+/* Maps the theme tokens below onto real Tailwind utilities (bg-surface,
+   text-muted, border-border, etc.) — same pattern used by the sibling Café
+   Labs sites (dindin-landing, domo-landing). Component color-mix() tints
+   stay as plain CSS (see notes further down): Tailwind's own alpha
+   modifier mixes in oklab, which shifts these colors slightly from the
+   `in srgb` mix the approved mockup uses. */
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-code-bg: var(--code-bg);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-subtle: var(--subtle);
+  --color-border: var(--border);
+  --color-green: var(--green);
+  --color-green-dim: var(--green-dim);
+  --color-blue: var(--blue);
+}
+
 /* ---------- design tokens (ported 1:1 from the approved mockup) ---------- */
 :root {
   --bg: #0d0d0d;
@@ -55,12 +75,6 @@ body {
   overflow-x: hidden;
 }
 
-.wrap {
-  max-width: 1120px;
-  margin: 0 auto;
-  padding: 0 24px;
-}
-
 h1,
 h2,
 h3 {
@@ -88,187 +102,34 @@ button:focus-visible {
 }
 
 /* ---------- header ---------- */
+/* Structural nav/logo/link styling lives as Tailwind utility classes in
+   SiteHeader.tsx / Footer.tsx now. What's left here is only the piece that
+   genuinely can't move: color-mix() tints (see the @theme inline note
+   above) driving the sticky header's translucency and the logo dot's glow. */
 .site-header {
-  position: sticky;
-  top: 0;
-  z-index: 50;
   background: color-mix(in srgb, var(--bg) 82%, transparent);
-  backdrop-filter: blur(10px);
   border-bottom: 1px solid transparent;
   transition: border-color 0.3s ease, background 0.3s ease;
 }
 .site-header.scrolled {
   border-bottom-color: var(--border);
 }
-.nav {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 0;
-}
-.logo {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-family: var(--font-display), var(--font-display-fallback);
-  font-weight: 700;
-  font-size: 18px;
-  text-decoration: none;
-  color: var(--fg);
-}
 .logo-dot {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: var(--green);
   box-shadow: 0 0 0 4px color-mix(in srgb, var(--green) 20%, transparent);
 }
-.nav-gh {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 9px 14px;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  text-decoration: none;
-  color: var(--muted);
-  font-size: 14px;
-  font-weight: 500;
-  min-height: 44px;
-  transition: border-color 0.2s, color 0.2s;
-}
-.nav-gh:hover {
-  border-color: var(--subtle);
-  color: var(--fg);
-}
 
-/* ---------- hero ---------- */
-.hero {
-  position: relative;
-  padding: 96px 0 88px;
-  overflow: hidden;
-}
-.hero-grid {
-  display: grid;
-  grid-template-columns: 1.1fr 0.9fr;
-  gap: 32px;
-  align-items: center;
-}
-.eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-family: var(--font-mono), var(--font-mono-fallback);
-  font-size: 12.5px;
-  color: var(--green);
+/* ---------- hero / buttons / badges ---------- */
+/* Structural styling for .hero, .btn*, .cta-row, .micro-proof, .clip-fallback
+   etc. now lives as Tailwind utilities in Hero.tsx and FinalCta.tsx. Only
+   the color-mix() tints stay here (see @theme inline note above): the
+   accent eyebrow badge's tinted background/border, and the primary
+   button's tinted glow shadow. */
+.eyebrow-accent {
   background: color-mix(in srgb, var(--green) 12%, transparent);
   border: 1px solid color-mix(in srgb, var(--green) 30%, transparent);
-  padding: 6px 12px;
-  border-radius: 100px;
-  margin-bottom: 22px;
-}
-.eyebrow-muted {
-  color: var(--subtle);
-  border-color: var(--border);
-  background: transparent;
-}
-.hero h1 {
-  font-size: 56px;
-  line-height: 1.06;
-  max-width: 640px;
-}
-.hero h1 .accent {
-  color: var(--green);
-}
-.hero-sub {
-  margin-top: 22px;
-  font-size: 18px;
-  color: var(--muted);
-  max-width: 540px;
-  line-height: 1.6;
-}
-.hero-sub strong {
-  color: var(--fg);
-  font-weight: 600;
-}
-.cta-row {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  margin-top: 34px;
-  flex-wrap: wrap;
-}
-.cta-row-center {
-  justify-content: center;
-}
-.btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  text-decoration: none;
-  cursor: pointer;
-  font-family: var(--font-body), var(--font-body-fallback);
-  font-weight: 600;
-  border-radius: 10px;
-  min-height: 48px;
-  border: 1px solid transparent;
-  transition: transform 0.15s ease, filter 0.15s ease;
-  font-size: 15px;
-}
-.btn:active {
-  transform: scale(0.98);
 }
 .btn-primary {
-  background: var(--green);
-  color: #08150a;
-  padding: 13px 22px;
   box-shadow: 0 8px 24px -8px color-mix(in srgb, var(--green) 60%, transparent);
-}
-.btn-primary:hover {
-  filter: brightness(1.08);
-}
-.btn-secondary {
-  background: transparent;
-  color: var(--fg);
-  border-color: var(--border);
-  padding: 12px 20px;
-}
-.btn-secondary:hover {
-  border-color: var(--subtle);
-}
-.micro-proof {
-  margin-top: 18px;
-  font-size: 13px;
-  color: var(--subtle);
-  font-family: var(--font-mono), var(--font-mono-fallback);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.clip-fallback {
-  margin-top: 10px;
-  font-size: 13px;
-  color: var(--subtle);
-  display: none;
-}
-.clip-fallback.show {
-  display: block;
-}
-.clip-fallback pre {
-  display: block;
-  margin: 6px 0 0;
-  padding: 10px 12px;
-  background: var(--code-bg);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  color: var(--muted);
-  user-select: all;
-  font-family: var(--font-mono), var(--font-mono-fallback);
-  font-size: 12px;
-  line-height: 1.7;
-  white-space: pre-wrap;
-  word-break: break-word;
-  overflow-x: auto;
 }
 
 /* ---------- node graph (interactive) ---------- */
@@ -384,239 +245,41 @@ svg.graph {
   border: 0;
 }
 
-/* ---------- node example modal ---------- */
-.modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(2px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  z-index: 200;
-}
-.modal {
-  width: 100%;
-  max-width: 400px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 22px;
-  position: relative;
-  box-shadow: 0 24px 60px -20px rgba(0, 0, 0, 0.6);
-}
-.modal-close {
-  position: absolute;
-  top: 6px;
-  right: 6px;
-  width: 44px;
-  height: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: transparent;
-  border: none;
-  color: var(--subtle);
-  font-size: 20px;
-  cursor: pointer;
-  border-radius: 8px;
-}
-.modal-close:hover {
-  color: var(--fg);
-  background: var(--surface-2);
-}
-.modal-head {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  margin-bottom: 4px;
-  padding-right: 36px;
-}
-.modal-dot {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: var(--green);
-  flex-shrink: 0;
-}
-.modal-head h3 {
-  font-size: 17px;
-}
-.modal-path {
-  display: block;
-  font-size: 12px;
-  color: var(--subtle);
-  margin-bottom: 14px;
-}
-.modal-body {
-  background: var(--code-bg);
-  border: 1px solid var(--border);
-  border-radius: 9px;
-  padding: 12px 14px;
-  font-size: 12.5px;
-  line-height: 1.7;
-  color: var(--muted);
-  white-space: pre-wrap;
-  margin: 0 0 12px;
-  max-height: 220px;
-  overflow-y: auto;
-}
-.modal-caption {
-  font-size: 12.5px;
-  color: var(--subtle);
-  margin: 0;
-  font-style: italic;
-}
+/* Node example modal (NodeModal.tsx): opening/closing is animated by
+   Framer Motion (opacity/y/scale props), not CSS classes, so every static
+   property — sizing, padding, borders, radius, shadow, typography — moved
+   to Tailwind utility classes directly on the component. Nothing left to
+   keep here. */
 
-section {
-  padding: 88px 0;
-  border-top: 1px solid var(--border);
-}
-.hero {
-  border-top: none;
-  padding-top: 96px;
-}
-.section-head {
-  max-width: 640px;
-  margin-bottom: 52px;
-}
-.section-head .eyebrow {
-  margin-bottom: 16px;
-}
-.section-head h2 {
-  font-size: 36px;
-  line-height: 1.15;
-}
-.section-head p {
-  margin-top: 14px;
-  font-size: 17px;
-  color: var(--muted);
-}
+/* Section padding/border-top and the shared "section head" (eyebrow + h2 +
+   intro paragraph) block now live as Tailwind utility classes on each
+   section component. */
 
-/* ---------- comparison ---------- */
-.compare {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-}
-.compare-card {
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 26px;
-  background: var(--surface);
-}
-.compare-card.old {
-  opacity: 0.75;
-}
-.compare-card .tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-family: var(--font-mono), var(--font-mono-fallback);
-  font-size: 12.5px;
-  padding: 5px 10px;
-  border-radius: 100px;
-  margin-bottom: 16px;
-}
-.compare-card.old .tag {
-  color: var(--subtle);
-  border: 1px solid var(--border);
-}
-.compare-card.new .tag {
-  color: var(--green);
+/* ---------- comparison / features ---------- */
+/* Everything structural (.compare, .compare-card, .tag, .chat-bubble,
+   .fade-note, .features, .feature-card, .feature-icon...) moved to
+   Tailwind utilities in ConceptSection.tsx / FeaturesSection.tsx. Only the
+   color-mix() tints stay: the "new" comparison card's accent tag/border,
+   the .md-note border, and the feature icon's tinted background. */
+.tag-accent {
   border: 1px solid color-mix(in srgb, var(--green) 30%, transparent);
   background: color-mix(in srgb, var(--green) 10%, transparent);
 }
-.compare-card h3 {
-  font-size: 19px;
-  margin-bottom: 10px;
-}
-.compare-card ul {
-  margin: 0;
-  padding-left: 18px;
-  color: var(--muted);
-  font-size: 15px;
-}
-.compare-card ul li {
-  margin-bottom: 8px;
-}
-.compare-card.new {
+.compare-card-accent {
   border-color: color-mix(in srgb, var(--green) 35%, var(--border));
 }
-.chat-bubble {
-  font-family: var(--font-mono), var(--font-mono-fallback);
-  font-size: 13px;
-  background: var(--code-bg);
-  border-radius: 10px;
-  padding: 14px;
-  color: var(--subtle);
-  margin-top: 14px;
-  border: 1px dashed var(--border);
-}
-.fade-note {
-  font-size: 12px;
-  color: var(--subtle);
-  margin-top: 8px;
-  font-style: italic;
-}
 .md-note {
-  font-family: var(--font-mono), var(--font-mono-fallback);
-  font-size: 13px;
-  background: var(--code-bg);
-  border-radius: 10px;
-  padding: 14px;
-  color: var(--muted);
-  margin-top: 14px;
   border: 1px solid color-mix(in srgb, var(--green) 25%, var(--border));
 }
-
-/* ---------- features ---------- */
-.features {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-}
-.feature-card {
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 26px;
-  background: var(--surface);
-  transition: border-color 0.2s ease, transform 0.2s ease;
-  height: 100%;
-}
-.feature-card:hover {
-  border-color: var(--green);
-  transform: translateY(-3px);
-}
 .feature-icon {
-  width: 38px;
-  height: 38px;
-  border-radius: 9px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   background: color-mix(in srgb, var(--green) 14%, transparent);
-  color: var(--green);
-  margin-bottom: 16px;
-}
-.feature-card h3 {
-  font-size: 18px;
-  margin-bottom: 8px;
-}
-.feature-card p {
-  margin: 0;
-  color: var(--muted);
-  font-size: 15px;
 }
 
 /* ---------- proof / terminal ---------- */
-.proof-grid {
-  display: grid;
-  grid-template-columns: 1.05fr 0.95fr;
-  gap: 24px;
-  align-items: start;
-}
+/* .proof-grid (plain layout) moved to Tailwind in ProofSection.tsx. The
+   terminal typewriter, file-tree reveal and skill-chip cascade below stay
+   as CSS as a group — they're all driven by transitions/animations tied to
+   classes toggled from ProofSection's typing/reveal timers. */
 .terminal {
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -746,181 +409,28 @@ section {
 }
 
 /* ---------- how to start ---------- */
-.steps {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 18px;
-  position: relative;
-}
-.steps::before {
-  content: "";
-  position: absolute;
-  top: 19px;
-  left: 6%;
-  right: 6%;
-  height: 1px;
-  background: var(--border);
-  z-index: 0;
-}
-.step {
-  position: relative;
-  z-index: 1;
-}
-.step-num {
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-mono), var(--font-mono-fallback);
-  font-size: 14px;
-  color: var(--green);
-  margin-bottom: 16px;
-}
-.step h3 {
-  font-size: 15.5px;
-  margin-bottom: 6px;
-}
-.step p {
-  margin: 0;
-  font-size: 13.5px;
-  color: var(--muted);
-}
-.readme-link {
-  margin-top: 28px;
-  font-size: 13.5px;
-  color: var(--subtle);
-  text-align: center;
-}
-.readme-link a {
-  color: var(--green);
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
+/* .steps / .step / .step-num / .readme-link moved to Tailwind utilities in
+   HowToStart.tsx, including the connecting line via a `before:` pseudo. */
 
 /* ---------- final CTA ---------- */
-.cta-final {
-  text-align: center;
-  border-top: 1px solid var(--border);
+/* Structural styling (text-align, border-top, h2/p sizing, .reassure) moved
+   to Tailwind utilities in FinalCta.tsx. Only the tinted radial-gradient
+   background stays here. */
+.cta-final-glow {
   background: radial-gradient(
     60% 100% at 50% 0%,
     color-mix(in srgb, var(--green) 8%, transparent),
     transparent
   );
 }
-.cta-final h2 {
-  font-size: 34px;
-  max-width: 640px;
-  margin: 0 auto;
-}
-.cta-final p {
-  color: var(--muted);
-  margin-top: 14px;
-  font-size: 16px;
-}
-.reassure {
-  margin-top: 16px;
-  font-size: 13px;
-  color: var(--subtle);
-}
 
-footer {
-  border-top: 1px solid var(--border);
-  padding: 36px 0;
-}
-.foot-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 14px;
-}
-.foot-row .logo {
-  font-size: 15px;
-}
-.foot-links {
-  display: flex;
-  gap: 20px;
-  font-size: 13.5px;
-  color: var(--subtle);
-}
-.foot-links a {
-  text-decoration: none;
-  color: var(--subtle);
-}
-.foot-links a:hover {
-  color: var(--fg);
-}
-
-/* toast */
-.toast-anchor {
-  position: fixed;
-  bottom: 24px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 100;
-}
-.toast {
-  background: var(--surface);
-  border: 1px solid var(--green);
-  color: var(--fg);
-  padding: 12px 18px;
-  border-radius: 10px;
-  font-size: 13.5px;
-  font-family: var(--font-mono), var(--font-mono-fallback);
-  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
-  max-width: calc(100vw - 32px);
-  width: max-content;
-  text-align: center;
-  white-space: normal;
-}
+/* footer (Footer.tsx) and toast (Toast.tsx) are fully Tailwind now. */
 
 @media (max-width: 860px) {
-  .hero-grid {
-    grid-template-columns: 1fr;
-  }
-  .hero {
-    padding: 40px 0 48px;
-  }
-  .hero h1 {
-    font-size: 36px;
-  }
-  .hero-sub {
-    font-size: 16px;
-  }
-  .compare {
-    grid-template-columns: 1fr;
-  }
-  .features {
-    grid-template-columns: 1fr;
-  }
-  .proof-grid {
-    grid-template-columns: 1fr;
-  }
-  .steps {
-    grid-template-columns: 1fr 1fr;
-    row-gap: 28px;
-  }
-  .steps::before {
-    display: none;
-  }
-  section {
-    padding: 56px 0;
-  }
-  .section-head h2 {
-    font-size: 28px;
-  }
-  .cta-final h2 {
-    font-size: 26px;
-  }
-  .nav-gh .gh-label {
-    display: none;
-  }
-
-  /* graph stays real content on mobile: demoted below the CTAs, not
+  /* All other <=860px overrides (hero, nav-gh label, section padding,
+     section-head/cta-final headings, compare/features/proof/steps grids)
+     now live as `max-[860px]:` Tailwind variants on their components.
+     graph stays real content on mobile: demoted below the CTAs, not
      hidden — a compact node set (leaf-extra dropped), full contrast,
      still clickable with >=44px targets. never display:none. */
   .graph-panel {
@@ -932,11 +442,6 @@ footer {
   }
   .leaf-extra {
     display: none;
-  }
-}
-@media (max-width: 480px) {
-  .steps {
-    grid-template-columns: 1fr;
   }
 }
 
