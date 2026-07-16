@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { GitHubLink } from "@/components/GitHubLink";
 import { GitHubIcon } from "@/components/icons";
+import { MindLogo } from "@/components/MindLogo";
 
 export function SiteHeader() {
   const [scrolled, setScrolled] = useState(false);
@@ -19,15 +20,8 @@ export function SiteHeader() {
       className={`site-header${scrolled ? " scrolled" : ""} sticky top-0 z-50 backdrop-blur-[10px]`}
     >
       <div className="mx-auto flex max-w-[1120px] items-center justify-between px-6 py-4">
-        <a
-          className="flex items-center gap-2 text-lg font-bold text-fg no-underline"
-          href="#top"
-        >
-          <span
-            className="logo-dot h-[9px] w-[9px] rounded-full bg-green"
-            aria-hidden="true"
-          />{" "}
-          mind
+        <a className="flex items-center text-fg no-underline" href="#top">
+          <MindLogo className="h-6 w-auto" />
         </a>
         <GitHubLink
           location="header"
