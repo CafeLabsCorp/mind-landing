@@ -97,9 +97,10 @@ export function ProofSection() {
       let charIndex = 0;
       const iv = setInterval(() => {
         charIndex += 1;
+        const currentLineIndex = lineIndex;
         setLines((prev) => {
           const next = [...prev];
-          next[lineIndex] = {
+          next[currentLineIndex] = {
             prompt,
             text: full.slice(0, charIndex),
             done: charIndex >= full.length,
