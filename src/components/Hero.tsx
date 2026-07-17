@@ -10,8 +10,8 @@ export function Hero() {
   const { copy, showFallback } = useCloneCopy("hero");
 
   return (
-    <section className="relative overflow-hidden pt-14 pb-22 max-[860px]:pt-10 max-[860px]:pb-12">
-      <div className="mx-auto grid max-w-[1120px] grid-cols-[1.1fr_0.9fr] items-center gap-8 px-6 max-[860px]:grid-cols-1">
+    <section className="relative flex min-h-dvh items-center overflow-hidden pt-14 pb-22 max-[860px]:pt-10 max-[860px]:pb-12">
+      <div className="mx-auto grid w-full max-w-[1120px] grid-cols-[1.1fr_0.9fr] items-center gap-8 px-6 max-[860px]:grid-cols-1">
         <div>
           <span className="eyebrow-accent mb-5.5 inline-flex items-center gap-2 rounded-full px-3 py-1.5 font-mono text-[12.5px] text-green">
             <PlusIcon /> open source · MIT
