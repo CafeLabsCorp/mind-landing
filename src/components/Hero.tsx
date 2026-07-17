@@ -70,6 +70,14 @@ export function Hero() {
 
         <InteractiveGraph />
       </div>
+
+      <a
+        href="#conceito"
+        className="scroll-cue absolute bottom-6 left-1/2 flex -translate-x-1/2 flex-col items-center gap-1 font-mono text-[12.5px] text-subtle transition-colors hover:text-fg max-[860px]:hidden"
+      >
+        veja como funciona
+        <span aria-hidden="true">↓</span>
+      </a>
     </section>
   );
 }

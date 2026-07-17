@@ -230,6 +230,23 @@ svg.graph {
   }
 }
 
+/* Scroll cue at the bottom of the full-height hero: nudges the arrow to
+   signal there's more below. Reduced-motion is handled by the generic
+   `* { animation: none !important }` rule further down. */
+.scroll-cue span {
+  display: inline-block;
+  animation: scroll-cue-bounce 1.8s ease-in-out infinite;
+}
+@keyframes scroll-cue-bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(4px);
+  }
+}
+
 .visually-hidden {
   position: absolute;
   width: 1px;
