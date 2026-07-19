@@ -73,10 +73,13 @@ export function Hero() {
 
       <a
         href="#conceito"
-        className="scroll-cue absolute bottom-6 left-1/2 flex -translate-x-1/2 flex-col items-center gap-1 font-mono text-[12.5px] text-subtle transition-colors hover:text-fg max-[860px]:hidden"
+        className="absolute bottom-6 left-1/2 flex -translate-x-1/2 items-center font-mono text-[12.5px] text-subtle transition-colors hover:text-fg max-[860px]:hidden"
       >
+        <span className="text-green mr-2" aria-hidden="true">
+          $
+        </span>
         veja como funciona
-        <span aria-hidden="true">↓</span>
+        <span className="cursor" aria-hidden="true" />
       </a>
     </section>
   );
