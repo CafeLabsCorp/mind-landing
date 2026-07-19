@@ -1,9 +1,10 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { SETUP_COMMANDS } from "@/lib/site";
+import { useTranslations } from "next-intl";
 import { track } from "@/lib/analytics";
 import { useToast } from "@/components/Toast";
+import { useSetupCommands } from "@/lib/useSetupCommands";
 
 /**
  * Copies the full setup command block (fork-manual flow, two remotes) to
@@ -22,19 +23,21 @@ import { useToast } from "@/components/Toast";
  */
 export function useCloneCopy(location: "hero" | "final_cta") {
   const { showToast } = useToast();
+  const t = useTranslations("CloneCopy");
+  const setupCommands = useSetupCommands();
   const [showFallback, setShowFallback] = useState(false);
 
   const copy = useCallback(async () => {
     track("copy_clone_command", { location });
     try {
-      await navigator.clipboard.writeText(SETUP_COMMANDS);
+      await navigator.clipboard.writeText(setupCommands);
       setShowFallback(false);
-      showToast("comandos copiados — edite a URL do seu repo antes de rodar");
+      showToast(t("copied"));
     } catch {
       setShowFallback(true);
-      showToast("não foi possível copiar — selecione o texto");
+      showToast(t("copyFailed"));
     }
-  }, [showToast, location]);
+  }, [showToast, location, t, setupCommands]);
 
   return { copy, showFallback };
 }

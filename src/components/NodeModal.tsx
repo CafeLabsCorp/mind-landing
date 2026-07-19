@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { useTranslations } from "next-intl";
 import type { GraphNode } from "@/lib/graph-data";
 
 type NodeModalProps = {
@@ -15,6 +16,7 @@ const FOCUSABLE_SELECTOR = 'button, [href], [tabindex]:not([tabindex="-1"])';
 export function NodeModal({ node, onClose }: NodeModalProps) {
   const dialogRef = useRef<HTMLDivElement>(null);
   const reduceMotion = useReducedMotion();
+  const t = useTranslations("NodeModal");
 
   useEffect(() => {
     if (!node) return;
@@ -75,7 +77,7 @@ export function NodeModal({ node, onClose }: NodeModalProps) {
           >
             <button
               className="absolute top-1.5 right-1.5 flex h-11 w-11 cursor-pointer items-center justify-center rounded-lg border-none bg-transparent text-xl text-subtle hover:bg-surface-2 hover:text-fg"
-              aria-label="Fechar exemplo"
+              aria-label={t("close")}
               onClick={onClose}
             >
               &times;

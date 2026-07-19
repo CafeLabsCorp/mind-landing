@@ -1,8 +1,11 @@
+import { useTranslations } from "next-intl";
 import { GitHubLink } from "@/components/GitHubLink";
 import { MindLogo } from "@/components/MindLogo";
 import { GITHUB_LICENSE_URL } from "@/lib/site";
 
 export function Footer() {
+  const t = useTranslations("Footer");
+
   return (
     <footer className="border-t border-border py-9">
       <div className="mx-auto flex max-w-[1120px] flex-wrap items-center justify-between gap-3.5 px-6">
@@ -14,7 +17,7 @@ export function Footer() {
             location="footer"
             className="no-underline text-subtle transition-colors hover:text-fg"
           >
-            Repositório
+            {t("repository")}
           </GitHubLink>
           <a
             href={GITHUB_LICENSE_URL}
