@@ -1,0 +1,150 @@
+{
+  "Metadata": {
+    "title": "mind — your Claude Code's memory",
+    "description": "Personal knowledge vault, versioned in Markdown + git, integrated with Claude Code via a native Skill. Open source, MIT, no extra server."
+  },
+  "Hero": {
+    "titleBefore": "Your mind,",
+    "titleAccent": "versioned.",
+    "subtitle": "<strong>mind</strong> is a personal knowledge vault in Markdown and git — where your facts, your decisions, and the rules for how you want to be helped live. You own every line, no black box and no extra infra.",
+    "ctaCopy": "Copy setup commands",
+    "ctaGithub": "View on GitHub",
+    "copyHint": "$ create your repo → point it to yours → setup · no signup",
+    "fallbackText": "Couldn't copy automatically — select the block below (edit your repo's URL before running it):",
+    "scrollHint": "see how it works"
+  },
+  "ConceptSection": {
+    "eyebrow": "the problem",
+    "heading": "Every new session, the same recap.",
+    "description": "Built-in memory exists — but it's opaque, and it resets the way you have to explain things. mind swaps that for a vault you can see and edit.",
+    "withoutTag": "without mind",
+    "withoutTitle": "Assistant's built-in memory",
+    "withoutQuote": "“remember I told you about project X...”",
+    "withoutQuoteCaption": "— every session, again",
+    "withoutBullet1": "Black box: you can't see or edit what got stored",
+    "withoutBullet2": "Locked to the product — doesn't follow you if you switch tools",
+    "withoutFooter": "resets, dilutes, you re-explain",
+    "withTag": "with mind",
+    "withTitle": "Versioned vault, yours",
+    "withNoteHeading": "## Current status",
+    "withNoteBody": "App in production. Next: review authentication...",
+    "withBullet1": "Real Markdown, in your git — opens in any editor",
+    "withBullet2": "Survives switching tools, machines, sessions"
+  },
+  "FeaturesSection": {
+    "eyebrow": "why it's not just another notes app",
+    "heading": "Four decisions, one vault.",
+    "ownershipTitle": "You own it",
+    "ownershipDescription": "Versioned, visible Markdown, editable outside Claude — nobody's black box.",
+    "infraTitle": "Zero new infra",
+    "infraDescription": "No MCP server, no vector DB. Just a native Claude Code Skill reading git.",
+    "howYouWorkTitle": "Stores how you work, not just what",
+    "howYouWorkDescription": "Conventions, rules, how you want answers — not just loose facts about your life.",
+    "forkTitle": "A fork that gets updates",
+    "forkDescription": "Pulls improvements from the template (<code>git fetch upstream</code>) without losing your content."
+  },
+  "ProofSection": {
+    "eyebrow": "proof, not promise",
+    "heading": "It's not a concept. It's a real repo.",
+    "description": "The setup command and the folder tree below are exactly what's in the repository today.",
+    "cloneComment": "create an empty, private repo before cloning",
+    "treeRootIndex": "— root index",
+    "treeClaudeUser": "— Skill + CLAUDE.md",
+    "treeClaudeSettings": "— project settings",
+    "skillDemoCaption": "// the Skill loads only the right node, never the whole tree",
+    "skillDemoResult": "Claude reads 1 file"
+  },
+  "HowToStart": {
+    "eyebrow": "near-zero friction",
+    "heading": "Works with what you already have.",
+    "description": "It's not a plain <code>git clone</code>: you become the owner of your own repo from the first commit — and you still keep receiving updates from the template whenever you want.",
+    "step1Title": "Create your repo",
+    "step1Description": "Empty and private — GitHub, GitLab, doesn't matter. No README or .gitignore.",
+    "step2Title": "Point it to your repo",
+    "step2Description": "Clone the template and swap the remotes: it becomes <code>upstream</code>, yours becomes <code>origin</code>.",
+    "step3Title": "Run the setup",
+    "step3Description": "<code>./scripts/setup-symlinks.sh</code>",
+    "step4Title": "Open it and talk",
+    "step4Description": "<code>claude</code> in the terminal — the Skill handles the rest.",
+    "readmeLink": "See the full step-by-step (with commands) in the README →"
+  },
+  "FinalCta": {
+    "heading": "Your memory, in your git, today.",
+    "description": "Your own repo, one script, and Claude Code stops starting from zero.",
+    "ctaCopy": "Copy setup commands",
+    "ctaGithub": "★ Star on GitHub",
+    "footerNote": "Free, open source (MIT), no signup."
+  },
+  "Footer": {
+    "repository": "Repository"
+  },
+  "NodeGraph": {
+    "caption": "click a node · example from the vault",
+    "openNode": "See example of the {label} node"
+  },
+  "NodeModal": {
+    "close": "Close example"
+  },
+  "CloneCopy": {
+    "copied": "commands copied — edit your repo's URL before running them",
+    "copyFailed": "couldn't copy — select the text"
+  },
+  "SetupCommands": {
+    "step1": "1) create an empty, private repo first (GitHub, GitLab...) — no README/gitignore",
+    "step2": "2) setup and first conversation",
+    "originPlaceholder": "<your-empty-repo-url>"
+  },
+  "Graph": {
+    "mind": {
+      "label": "Mind",
+      "path": "MIND.md",
+      "body": "# Index\n\n## Projects\n- [hobby](projects/hobby.md)\n\n## Tasks\n- [personal](tasks/personal.md)\n\n## Studies\n- [algorithms](studies/algorithms.md)",
+      "caption": "root index — just links and a one-line description, no heavy content."
+    },
+    "projetos": {
+      "label": "Projects",
+      "path": "projects/projects.md",
+      "body": "# Projects\n\n- [hobby](hobby.md) — personal project, built in spare time\n- [company](company.md) — own business, 2 active products",
+      "caption": "index folder: each of your projects becomes its own node, linked from here."
+    },
+    "tarefas": {
+      "label": "Tasks",
+      "path": "tasks/personal.md",
+      "body": "- [ ] Renew driver's license by 07/30\n- [ ] Call the dentist\n- [x] Review the apartment lease",
+      "caption": "pending items centralized here — never scattered inside a project node."
+    },
+    "estudos": {
+      "label": "Studies",
+      "path": "studies/algorithms.md",
+      "body": "---\ntags: [graphs, proof]\n---\n## Summary\nDijkstra: shortest path with\nnon-negative weights — O((V+E) log V) with a heap.",
+      "caption": "free-form category — there's no fixed tree, you create whatever folders make sense."
+    },
+    "pessoal": {
+      "label": "Personal",
+      "path": "personal-life.md",
+      "body": "## Preferences\n- Coffee: pour-over only, no sugar\n- Current book: Sapiens",
+      "caption": "day-to-day facts — Claude always asks before storing something like this."
+    },
+    "conhecimentos": {
+      "label": "Knowledge",
+      "path": "knowledge/advanced-git.md",
+      "body": "## interactive rebase\ngit rebase -i HEAD~5\n\nsquash commits before the PR.",
+      "caption": "loose technical knowledge, not tied to a specific project."
+    },
+    "hobby": {
+      "label": "Hobby",
+      "path": "projects/hobby.md",
+      "body": "---\ntags: [mobile, backend]\n---\n## Current status\nApp in production, automated deploy.\nNext: review authentication.",
+      "caption": "project node — 2nd level deep, linked from Projects."
+    },
+    "empresa": {
+      "label": "Company",
+      "path": "projects/company.md",
+      "body": "## Current status\nOwn studio, 2 products in production.\nSee also → tasks/company.md",
+      "caption": "cross-links (\"See also\") create extra edges — the graph isn't just a star."
+    }
+  },
+  "LanguageSwitcher": {
+    "label": "Language"
+  }
+}

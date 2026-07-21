@@ -1,59 +1,21 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useInView } from "framer-motion";
+import { useTranslations } from "next-intl";
 import { Reveal } from "@/components/Reveal";
 
-// Mirrors the real setup sequence from the template's README ("Setup numa
-// máquina nova"): the fork-manual flow with two remotes, not a plain clone.
-const TERMINAL_LINES: Array<[prompt: string, command: string]> = [
-  ["# ", "crie um repo vazio e privado antes de clonar"],
-  ["$ ", "git clone https://github.com/CafeLabsDev/mind-template.git mind"],
-  ["$ ", "cd mind"],
-  ["$ ", "git remote rename origin upstream"],
-  ["$ ", 'git remote add origin "<url-do-seu-repo-vazio>"'],
-  ["$ ", "git push -u origin main"],
-  ["$ ", "./scripts/setup-symlinks.sh"],
-  ["$ ", "claude"],
-];
-
-const TREE_LINES: Array<{ content: React.ReactNode }> = [
-  { content: "mind/" },
-  {
-    content: (
-      <>
-        ├── <span className="hl">MIND.md</span>{" "}
-        <span className="dim">— índice raiz</span>
-      </>
-    ),
-  },
-  { content: "├── docs/" },
-  {
-    content: (
-      <>
-        │&nbsp;&nbsp; └── ARQUITETURA.md
-      </>
-    ),
-  },
-  {
-    content: (
-      <>
-        ├── claude-user/ <span className="dim">— Skill + CLAUDE.md</span>
-      </>
-    ),
-  },
-  {
-    content: (
-      <>
-        ├── .claude/ <span className="dim">— settings de projeto</span>
-      </>
-    ),
-  },
-  { content: "└── scripts/" },
-  {
-    content: <>&nbsp;&nbsp;&nbsp;&nbsp; └── setup-symlinks.sh</>,
-  },
-];
+function buildSetupLines(originPlaceholder: string) {
+  return [
+    "git clone https://github.com/CafeLabsDev/mind-template.git mind",
+    "cd mind",
+    "git remote rename origin upstream",
+    `git remote add origin "${originPlaceholder}"`,
+    "git push -u origin main",
+    "./scripts/setup-symlinks.sh",
+    "claude",
+  ];
+}
 
 const SKILL_CHIPS = [
   "conhecimentos/git.md",
@@ -71,6 +33,8 @@ type TypedLine = { prompt: string; text: string; done: boolean };
  * then the active skill chip) 1:1, including relative timings.
  */
 export function ProofSection() {
+  const t = useTranslations("ProofSection");
+  const tSetup = useTranslations("SetupCommands");
   const terminalRef = useRef<HTMLDivElement>(null);
   const inView = useInView(terminalRef, { once: true, amount: 0.3 });
   const [lines, setLines] = useState<TypedLine[]>([]);
@@ -78,6 +42,57 @@ export function ProofSection() {
   const [treeVisibleCount, setTreeVisibleCount] = useState(0);
   const [skillPhaseActive, setSkillPhaseActive] = useState(false);
   const started = useRef(false);
+
+  // Mirrors the real setup sequence from the template's README ("Setup numa
+  // máquina nova"): the fork-manual flow with two remotes, not a plain clone.
+  // Only the leading "# " comment is translated; the commands themselves
+  // never change across locales.
+  const terminalLines = useMemo<Array<[prompt: string, command: string]>>(
+    () => [
+      ["# ", t("cloneComment")],
+      ...buildSetupLines(tSetup("originPlaceholder")).map(
+        (line) => ["$ ", line] as [string, string],
+      ),
+    ],
+    [t, tSetup],
+  );
+
+  const treeLines = useMemo<Array<{ content: React.ReactNode }>>(
+    () => [
+      { content: "mind/" },
+      {
+        content: (
+          <>
+            ├── <span className="hl">MIND.md</span>{" "}
+            <span className="dim">{t("treeRootIndex")}</span>
+          </>
+        ),
+      },
+      { content: "├── docs/" },
+      {
+        content: <>│&nbsp;&nbsp; └── ARQUITETURA.md</>,
+      },
+      {
+        content: (
+          <>
+            ├── claude-user/ <span className="dim">{t("treeClaudeUser")}</span>
+          </>
+        ),
+      },
+      {
+        content: (
+          <>
+            ├── .claude/ <span className="dim">{t("treeClaudeSettings")}</span>
+          </>
+        ),
+      },
+      { content: "└── scripts/" },
+      {
+        content: <>&nbsp;&nbsp;&nbsp;&nbsp; └── setup-symlinks.sh</>,
+      },
+    ],
+    [t],
+  );
 
   useEffect(() => {
     if (!inView || started.current) return;
@@ -88,11 +103,11 @@ export function ProofSection() {
 
     let lineIndex = 0;
     function typeNextLine() {
-      if (lineIndex >= TERMINAL_LINES.length) {
+      if (lineIndex >= terminalLines.length) {
         setShowCursor(true);
         return;
       }
-      const [prompt, full] = TERMINAL_LINES[lineIndex];
+      const [prompt, full] = terminalLines[lineIndex];
       setLines((prev) => [...prev, { prompt, text: "", done: false }]);
       let charIndex = 0;
       const iv = setInterval(() => {
@@ -122,7 +137,7 @@ export function ProofSection() {
     // pace above keeps total typing time roughly where it was.
     timeouts.push(
       setTimeout(() => {
-        TREE_LINES.forEach((_, i) => {
+        treeLines.forEach((_, i) => {
           timeouts.push(
             setTimeout(() => setTreeVisibleCount((c) => Math.max(c, i + 1)), i * 90)
           );
@@ -136,7 +151,7 @@ export function ProofSection() {
       timeouts.forEach(clearTimeout);
       intervals.forEach(clearInterval);
     };
-  }, [inView]);
+  }, [inView, terminalLines, treeLines]);
 
   return (
     <section
@@ -146,14 +161,13 @@ export function ProofSection() {
       <div className="mx-auto max-w-[1120px] px-6">
         <Reveal className="mb-13 max-w-[640px]" as="div">
           <span className="mb-4 inline-flex items-center gap-2 rounded-full border border-border px-3 py-1.5 font-mono text-[12.5px] text-subtle">
-            prova, não promessa
+            {t("eyebrow")}
           </span>
           <h2 className="text-4xl leading-[1.15] max-[860px]:text-[28px]">
-            Não é conceito. É um repo real.
+            {t("heading")}
           </h2>
           <p className="mt-3.5 text-[17px] text-muted">
-            O comando de setup e a árvore de pastas abaixo são exatamente o
-            que está no repositório hoje.
+            {t("description")}
           </p>
         </Reveal>
         <div className="grid grid-cols-[1.05fr_0.95fr] items-start gap-6 max-[860px]:grid-cols-1">
@@ -186,7 +200,7 @@ export function ProofSection() {
           </Reveal>
           <Reveal as="div">
             <div className="tree">
-              {TREE_LINES.map((line, i) => (
+              {treeLines.map((line, i) => (
                 <div
                   key={i}
                   className={`tree-line${i < treeVisibleCount ? " in" : ""}`}
@@ -196,9 +210,7 @@ export function ProofSection() {
               ))}
 
               <div className="skill-demo">
-                <div className="cap">
-                  {"// a Skill carrega só o nó certo, nunca a árvore inteira"}
-                </div>
+                <div className="cap">{t("skillDemoCaption")}</div>
                 <div className="skill-row">
                   {SKILL_CHIPS.map((chip, i) => (
                     <span
@@ -212,7 +224,7 @@ export function ProofSection() {
                   <span
                     className={`file-chip${skillPhaseActive ? " active" : ""}`}
                   >
-                    Claude lê 1 arquivo
+                    {t("skillDemoResult")}
                   </span>
                 </div>
               </div>

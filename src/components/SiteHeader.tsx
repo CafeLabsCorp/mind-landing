@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { GitHubLink } from "@/components/GitHubLink";
 import { GitHubIcon } from "@/components/icons";
 import { MindLogo } from "@/components/MindLogo";
+import { LanguageSwitcher } from "@/components/ui/language-switcher";
 
 export function SiteHeader() {
   const [scrolled, setScrolled] = useState(false);
@@ -23,13 +24,16 @@ export function SiteHeader() {
         <a className="flex items-center text-fg no-underline" href="#top">
           <MindLogo className="h-6 w-auto" />
         </a>
-        <GitHubLink
-          location="header"
-          className="flex min-h-11 items-center gap-2 rounded-[10px] border border-border px-3.5 py-2 text-sm font-medium text-muted no-underline transition-colors duration-200 hover:border-subtle hover:text-fg"
-        >
-          <GitHubIcon />
-          <span className="max-[860px]:hidden">GitHub</span>
-        </GitHubLink>
+        <div className="flex items-center gap-3">
+          <LanguageSwitcher />
+          <GitHubLink
+            location="header"
+            className="flex min-h-11 items-center gap-2 rounded-[10px] border border-border px-3.5 py-2 text-sm font-medium text-muted no-underline transition-colors duration-200 hover:border-subtle hover:text-fg"
+          >
+            <GitHubIcon />
+            <span className="max-[860px]:hidden">GitHub</span>
+          </GitHubLink>
+        </div>
       </div>
     </header>
   );

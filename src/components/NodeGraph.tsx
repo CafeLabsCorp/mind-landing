@@ -1,13 +1,13 @@
 "use client";
 
-import { useState } from "react";
-import { graphEdges, graphNodes, type GraphNode } from "@/lib/graph-data";
+import { useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
+import { graphEdges, type GraphNode } from "@/lib/graph-data";
 
 type NodeGraphProps = {
+  nodes: GraphNode[];
   onSelect: (node: GraphNode, trigger: HTMLElement) => void;
 };
-
-const byId = Object.fromEntries(graphNodes.map((n) => [n.id, n]));
 
 /**
  * The SVG below is purely decorative (`aria-hidden`, `focusable="false"`) —
@@ -16,13 +16,18 @@ const byId = Object.fromEntries(graphNodes.map((n) => [n.id, n]));
  * (focus order, Enter/Space activation, screen reader name) for free. This
  * mirrors the approved mockup exactly; do not merge the two layers.
  */
-export function NodeGraph({ onSelect }: NodeGraphProps) {
+export function NodeGraph({ nodes: graphNodes, onSelect }: NodeGraphProps) {
+  const t = useTranslations("NodeGraph");
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const byId = useMemo(
+    () => Object.fromEntries(graphNodes.map((n) => [n.id, n])),
+    [graphNodes],
+  );
 
   return (
     <div className="graph-panel">
       <p className="graph-caption" id="graphCaption">
-        clique num nó · exemplo do vault
+        {t("caption")}
       </p>
       <div className="graph-wrap">
         <svg
@@ -100,7 +105,7 @@ export function NodeGraph({ onSelect }: NodeGraphProps) {
               onBlur={() => setHoveredId((id) => (id === n.id ? null : id))}
             >
               <span className="visually-hidden">
-                Ver exemplo do nó {n.label}
+                {t("openNode", { label: n.label })}
               </span>
             </button>
           ))}

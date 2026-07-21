@@ -1,9 +1,10 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { NodeGraph } from "@/components/NodeGraph";
 import { NodeModal } from "@/components/NodeModal";
-import type { GraphNode } from "@/lib/graph-data";
+import { graphNodeShapes, type GraphNode } from "@/lib/graph-data";
 
 /**
  * Wires the graph and its example modal together: tracks which node is
@@ -12,8 +13,21 @@ import type { GraphNode } from "@/lib/graph-data";
  * close button).
  */
 export function InteractiveGraph() {
+  const t = useTranslations("Graph");
   const [activeNode, setActiveNode] = useState<GraphNode | null>(null);
   const lastFocused = useRef<HTMLElement | null>(null);
+
+  const nodes = useMemo<GraphNode[]>(
+    () =>
+      graphNodeShapes.map((shape) => ({
+        ...shape,
+        label: t(`${shape.id}.label`),
+        path: t(`${shape.id}.path`),
+        body: t(`${shape.id}.body`),
+        caption: t(`${shape.id}.caption`),
+      })),
+    [t],
+  );
 
   const handleSelect = useCallback((node: GraphNode, trigger: HTMLElement) => {
     lastFocused.current = trigger;
@@ -27,7 +41,7 @@ export function InteractiveGraph() {
 
   return (
     <>
-      <NodeGraph onSelect={handleSelect} />
+      <NodeGraph nodes={nodes} onSelect={handleSelect} />
       <NodeModal node={activeNode} onClose={handleClose} />
     </>
   );

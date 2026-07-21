@@ -1,10 +1,11 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { CopyIcon, PlusIcon, StarIcon } from "@/components/icons";
 import { GitHubLink } from "@/components/GitHubLink";
 import { InteractiveGraph } from "@/components/InteractiveGraph";
-import { SETUP_COMMANDS } from "@/lib/site";
 import { useCloneCopy } from "@/lib/useCloneCopy";
+import { useSetupCommands } from "@/lib/useSetupCommands";
 
 // 77px = altura renderizada do <SiteHeader /> (medida, estável em
 // mobile/desktop). Descontada aqui pra hero+header preencherem exatamente
@@ -12,7 +13,9 @@ import { useCloneCopy } from "@/lib/useCloneCopy";
 const HEADER_HEIGHT_PX = 77;
 
 export function Hero() {
+  const t = useTranslations("Hero");
   const { copy, showFallback } = useCloneCopy("hero");
+  const setupCommands = useSetupCommands();
 
   return (
     <section
@@ -25,13 +28,12 @@ export function Hero() {
             <PlusIcon /> open source · MIT
           </span>
           <h1 className="max-w-[640px] text-[56px] leading-[1.06] max-[860px]:text-4xl">
-            Sua mente, <span className="text-green">versionada.</span>
+            {t("titleBefore")} <span className="text-green">{t("titleAccent")}</span>
           </h1>
           <p className="mt-5.5 max-w-[540px] text-lg leading-[1.6] text-muted max-[860px]:text-base">
-            O <strong className="font-semibold text-fg">mind</strong> é um
-            vault de conhecimento pessoal em Markdown e git — onde vivem seus
-            fatos, suas decisões e as regras de como você quer ser ajudado.
-            Você é dono de cada linha, sem caixa-preta e sem infra extra.
+            {t.rich("subtitle", {
+              strong: (chunks) => <strong className="font-semibold text-fg">{chunks}</strong>,
+            })}
           </p>
           <div className="mt-8.5 flex flex-wrap items-center gap-3.5">
             <button
@@ -41,29 +43,28 @@ export function Hero() {
               onClick={copy}
             >
               <CopyIcon />
-              Copiar comandos de setup
+              {t("ctaCopy")}
             </button>
             <GitHubLink
               location="hero"
               className="inline-flex min-h-12 items-center gap-2.5 rounded-[10px] border border-border px-5 py-3 text-[15px] font-semibold text-fg no-underline transition-[transform,filter] duration-150 ease-out hover:border-subtle active:scale-[0.98]"
             >
               <StarIcon />
-              Ver no GitHub
+              {t("ctaGithub")}
             </GitHubLink>
           </div>
           <p
             id="copyHint"
             className="mt-4.5 flex items-center gap-2 font-mono text-[13px] text-subtle"
           >
-            $ crie seu repo → aponte pro seu repo → setup · sem cadastro
+            {t("copyHint")}
           </p>
           <div
             className={`mt-2.5 text-[13px] text-subtle ${showFallback ? "block" : "hidden"}`}
           >
-            Não foi possível copiar automaticamente — selecione o bloco
-            abaixo (edite a URL do seu repo antes de rodar):
+            {t("fallbackText")}
             <pre className="mt-1.5 block overflow-x-auto rounded-lg border border-border bg-code-bg px-3 py-2.5 font-mono text-xs leading-[1.7] break-words whitespace-pre-wrap text-muted select-all">
-              {SETUP_COMMANDS}
+              {setupCommands}
             </pre>
           </div>
         </div>
@@ -78,7 +79,7 @@ export function Hero() {
         <span className="text-green mr-2" aria-hidden="true">
           $
         </span>
-        veja como funciona
+        {t("scrollHint")}
         <span className="cursor" aria-hidden="true" />
       </a>
     </section>
