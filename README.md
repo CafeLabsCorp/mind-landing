@@ -1,85 +1,87 @@
+[Leia em Português](README.pt-br.md)
+
 # mind-landing
 
-Landing page única do [mind-template](https://github.com/CafeLabsDev/mind-template),
-o espelho genérico/open source do vault de conhecimento pessoal (Markdown + git,
-integrado ao Claude Code) do Felipe. Site estático (Next.js), sem backend nem dado de
-usuário — só divulga o projeto, explica o conceito e aponta pro repositório no GitHub.
-Público-alvo: dev que já usa Claude Code e está confortável com Markdown + git, não o
-público geral de apps de note-taking.
+Single landing page for [mind-template](https://github.com/CafeLabsCorp/mind-template),
+the generic/open-source mirror of Felipe's personal knowledge vault (Markdown + git,
+integrated with Claude Code). Static site (Next.js), no backend or user data — it just
+promotes the project, explains the concept, and points to the GitHub repository. Target
+audience: devs who already use Claude Code and are comfortable with Markdown + git, not
+the general note-taking-app crowd.
 
-Implementada 1:1 a partir de um mockup HTML já aprovado — paleta, tipografia, grafo
-interativo, animações e acessibilidade especificados ali são a fonte de verdade visual
-e de conteúdo (ver [docs/DESIGN.md](docs/DESIGN.md) e [docs/ARQUITETURA.md](docs/ARQUITETURA.md)).
+Implemented 1:1 from an already-approved HTML mockup — palette, typography, interactive
+graph, animations, and accessibility specified there are the visual and content source
+of truth (see [docs/DESIGN.md](docs/DESIGN.md) and [docs/ARQUITETURA.md](docs/ARQUITETURA.md)).
 
 ## Stack
 
-| Camada | Tecnologia |
+| Layer | Technology |
 | --- | --- |
 | Framework | Next.js 16 (App Router), React 19 |
-| Estilo | Tailwind CSS v4 (tokens via `@theme inline`) + CSS puro pontual (ver [docs/ARQUITETURA.md](docs/ARQUITETURA.md)) |
-| Animação | Framer Motion (`whileInView`, `AnimatePresence`) |
-| Fontes | Space Grotesk (display), Inter (corpo), JetBrains Mono (mono) via `next/font/google` |
-| Analytics | `@vercel/analytics` (eventos customizados) |
-| Deploy | Vercel — ver [docs/DEPLOY.md](docs/DEPLOY.md) |
+| Styling | Tailwind CSS v4 (tokens via `@theme inline`) + occasional plain CSS (see [docs/ARQUITETURA.md](docs/ARQUITETURA.md)) |
+| Animation | Framer Motion (`whileInView`, `AnimatePresence`) |
+| Fonts | Space Grotesk (display), Inter (body), JetBrains Mono (mono) via `next/font/google` |
+| Analytics | `@vercel/analytics` (custom events) |
+| Deploy | Vercel — see [docs/DEPLOY.md](docs/DEPLOY.md) |
 
-Mesmo padrão de stack do site institucional (`cafelabs-portifolio`) e da landing irmã
-(`dindin-landing`).
+Same stack pattern as the institutional site (`cafelabs-portifolio`) and the sibling
+landing (`dindin-landing`).
 
-## Pré-requisitos
+## Prerequisites
 
-- Node.js — `TODO: confirmar` versão mínima exigida (sem `engines` no `package.json`;
-  o ambiente de desenvolvimento atual usa Node 20).
-- npm (usa `package-lock.json`, não pnpm/yarn).
+- Node.js — `TODO: confirm` minimum required version (no `engines` field in
+  `package.json`; the current development environment uses Node 20).
+- npm (uses `package-lock.json`, not pnpm/yarn).
 
-## Rodando localmente
+## Running locally
 
 ```bash
 npm install
 npm run dev     # http://localhost:3000
 npm run lint    # eslint
-npm run build   # build de produção
-npm run start   # serve o build de produção
+npm run build   # production build
+npm run start   # serve the production build
 ```
 
-## Estrutura de pastas
+## Folder structure
 
 ```
 src/
-├── app/                # App Router: layout, página única, globals.css, favicon
-├── components/         # Um componente por seção da landing + peças reutilizáveis
+├── app/                # App Router: layout, single page, globals.css, favicon
+├── components/         # One component per landing section + reusable pieces
 │   ├── Hero.tsx, ConceptSection.tsx, FeaturesSection.tsx, ProofSection.tsx,
-│   │   HowToStart.tsx, FinalCta.tsx, Footer.tsx, SiteHeader.tsx  — seções da página
-│   ├── InteractiveGraph.tsx, NodeGraph.tsx, NodeModal.tsx        — grafo de nós da hero
-│   └── GitHubLink.tsx, Reveal.tsx, Toast.tsx, MindLogo.tsx, icons.tsx — peças comuns
-└── lib/                # site.ts (constantes/copy), graph-data.ts (nós do grafo),
-                         # analytics.ts, useCloneCopy.ts (hook do CTA de copiar)
+│   │   HowToStart.tsx, FinalCta.tsx, Footer.tsx, SiteHeader.tsx  — page sections
+│   ├── InteractiveGraph.tsx, NodeGraph.tsx, NodeModal.tsx        — hero node graph
+│   └── GitHubLink.tsx, Reveal.tsx, Toast.tsx, MindLogo.tsx, icons.tsx — shared pieces
+└── lib/                # site.ts (constants/copy), graph-data.ts (graph nodes),
+                         # analytics.ts, useCloneCopy.ts (copy CTA hook)
 ```
 
-Página única (`src/app/page.tsx`) compõe as seções em ordem: Header → Hero → Conceito →
-Features → Prova (terminal) → Como começar → CTA final → Footer. Detalhe de cada peça
-em [docs/ARQUITETURA.md](docs/ARQUITETURA.md).
+The single page (`src/app/page.tsx`) composes the sections in order: Header → Hero →
+Concept → Features → Proof (terminal) → How to start → Final CTA → Footer. Details of
+each piece in [docs/ARQUITETURA.md](docs/ARQUITETURA.md).
 
 ## Analytics
 
-`@vercel/analytics` instrumentado com dois eventos customizados (ver
+`@vercel/analytics` instrumented with two custom events (see
 [src/lib/analytics.ts](src/lib/analytics.ts)):
 
-- `copy_clone_command` — clique no botão "Copiar comandos de setup" (CTA primário;
-  nome do evento mantido do texto antigo, o conteúdo copiado agora é o bloco de setup
-  completo — fork manual, dois remotes).
-- `click_github` — clique em qualquer link pro GitHub, com prop `location`
-  (`header` | `hero` | `final_cta` | `footer`) pra diferenciar a origem.
+- `copy_clone_command` — click on the "Copy setup commands" button (primary CTA; event
+  name kept from the old copy, the copied content is now the full setup block — manual
+  fork, two remotes).
+- `click_github` — click on any link to GitHub, with a `location` prop
+  (`header` | `hero` | `final_cta` | `footer`) to tell the origin apart.
 
-Ambos carregam a prop `location` pra comparar as posições dos CTAs entre si.
+Both carry the `location` prop to compare CTA positions against each other.
 
 ## Deploy
 
-Vercel, domínio `mind.cafelabs.net`, repositório `CafeLabsDev/mind-landing` (público).
-Detalhes em [docs/DEPLOY.md](docs/DEPLOY.md).
+Vercel, domain `mind.cafelabs.net`, repository `CafeLabsCorp/mind-landing` (public).
+Details in [docs/DEPLOY.md](docs/DEPLOY.md).
 
 ## Docs
 
-- [docs/ARQUITETURA.md](docs/ARQUITETURA.md) — como a página é montada, fluxo de estado,
-  decisões técnicas e não-óbvias.
-- [docs/DESIGN.md](docs/DESIGN.md) — paleta, tipografia e tokens de identidade visual.
-- [docs/DEPLOY.md](docs/DEPLOY.md) — pipeline e domínio de deploy.
+- [docs/ARQUITETURA.md](docs/ARQUITETURA.md) — how the page is assembled, state flow,
+  technical and non-obvious decisions.
+- [docs/DESIGN.md](docs/DESIGN.md) — palette, typography, and visual identity tokens.
+- [docs/DEPLOY.md](docs/DEPLOY.md) — deploy pipeline and domain.
