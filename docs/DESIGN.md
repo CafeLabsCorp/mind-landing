@@ -1,73 +1,82 @@
+**[Leia em Português](DESIGN.pt-br.md)**
+
 # Design — mind-landing
 
-Identidade visual do produto "mind" em si (não tem codinome próprio separado, ao
-contrário de outras landings da Café Labs) — estética escura, técnica, "terminal/CLI",
-implementada 1:1 a partir de um mockup HTML já aprovado. Todos os tokens abaixo vêm de
-`src/app/globals.css` (`:root` e o bloco `@media (prefers-color-scheme: light)`).
+Visual identity of the "mind" product itself (it has no separate codename of
+its own, unlike other Café Labs landings) — dark, technical, "terminal/CLI"
+aesthetic, implemented 1:1 from an already-approved HTML mockup. All tokens
+below come from `src/app/globals.css` (`:root` and the
+`@media (prefers-color-scheme: light)` block).
 
-## Paleta
+## Palette
 
-Tema escuro por padrão (`color-scheme: dark` em `:root`); tema claro só via
-`prefers-color-scheme: light` do sistema — não há toggle manual no site.
+Dark theme by default (`color-scheme: dark` on `:root`); light theme only via
+the system's `prefers-color-scheme: light` — there is no manual toggle on the
+site.
 
-| Token | Escuro (padrão) | Claro | Uso |
+| Token | Dark (default) | Light | Use |
 | --- | --- | --- | --- |
-| `--bg` | `#0d0d0d` | `#f9f9f7` | fundo da página |
+| `--bg` | `#0d0d0d` | `#f9f9f7` | page background |
 | `--surface` | `#161615` | `#fcfcfb` | cards, terminal/tree, modal |
-| `--surface-2` | `#1c1c1a` | `#f1f0ec` | barra do terminal, header no hover |
-| `--code-bg` | `#0a0a0a` | `#111110` | blocos de código/comando |
-| `--fg` | `#f2f1ec` | `#0b0b0b` | texto principal |
-| `--muted` | `#c3c2b7` | `#52514e` | texto secundário |
-| `--subtle` | `#8a887f` | `#898781` | texto terciário, legendas |
-| `--border` | `rgba(255,255,255,.1)` | `rgba(11,11,11,.1)` | bordas |
-| `--green` | `#3fb950` | `#1a7f37` | cor de destaque (accent) — CTAs, prompt, hub do grafo |
-| `--green-dim` | `#2ea043` | `#166f30` | variante do verde (declarada; sem uso ativo encontrado — `TODO: confirmar` se ainda é necessária) |
-| `--blue` | `#5b9eea` | `#1e5aa8` | declarada; sem uso ativo encontrado nos componentes atuais — `TODO: confirmar` propósito original |
+| `--surface-2` | `#1c1c1a` | `#f1f0ec` | terminal bar, header on hover |
+| `--code-bg` | `#0a0a0a` | `#111110` | code/command blocks |
+| `--fg` | `#f2f1ec` | `#0b0b0b` | main text |
+| `--muted` | `#c3c2b7` | `#52514e` | secondary text |
+| `--subtle` | `#8a887f` | `#898781` | tertiary text, captions |
+| `--border` | `rgba(255,255,255,.1)` | `rgba(11,11,11,.1)` | borders |
+| `--green` | `#3fb950` | `#1a7f37` | accent color — CTAs, prompt, graph hub |
+| `--green-dim` | `#2ea043` | `#166f30` | variant of green (declared; no active use found — `TODO: confirmar` if it's still needed) |
+| `--blue` | `#5b9eea` | `#1e5aa8` | declared; no active use found in current components — `TODO: confirmar` original purpose |
 
-Tints translúcidos (badge do eyebrow, bordas/tags accent, sombra do botão primário,
-glow do CTA final) usam `color-mix(in srgb, var(--green) N%, transparent)` em CSS
-puro — não a sintaxe de alpha do Tailwind, que mistura em `oklab` e desloca a cor em
-relação ao mockup aprovado (ver `docs/ARQUITETURA.md` §5).
+Translucent tints (eyebrow badge, accent borders/tags, primary button shadow,
+final CTA glow) use `color-mix(in srgb, var(--green) N%, transparent)` in
+plain CSS — not Tailwind's alpha syntax, which mixes in `oklab` and shifts the
+color relative to the approved mockup (see `docs/ARQUITETURA.md` §5).
 
-## Tipografia
+## Typography
 
-Três famílias via `next/font/google`, cada uma numa CSS variable (`layout.tsx`):
+Three font families via `next/font/google`, each in its own CSS variable
+(`layout.tsx`):
 
-| Papel | Fonte | Pesos carregados | Variável |
+| Role | Font | Weights loaded | Variable |
 | --- | --- | --- | --- |
 | Display (h1/h2/h3) | Space Grotesk | 500, 600, 700 | `--font-display` |
-| Corpo | Inter | 400, 500, 600, 700 | `--font-body` |
-| Monoespaçada (terminal, código, prompts) | JetBrains Mono | 400, 500, 600 | `--font-mono` |
+| Body | Inter | 400, 500, 600, 700 | `--font-body` |
+| Monospace (terminal, code, prompts) | JetBrains Mono | 400, 500, 600 | `--font-mono` |
 
-`h1`/`h2`/`h3` são sempre `font-weight: 700`, `letter-spacing: -0.02em`. Títulos de
-seção seguem a escala `text-4xl` desktop / `text-[28px]` mobile (`max-[860px]`);
-o h1 da Hero é maior (`text-[56px]` / `text-4xl` mobile).
+`h1`/`h2`/`h3` are always `font-weight: 700`, `letter-spacing: -0.02em`.
+Section titles follow the `text-4xl` desktop / `text-[28px]` mobile
+(`max-[860px]`) scale; the Hero's h1 is larger (`text-[56px]` / `text-4xl`
+mobile).
 
-## Espaçamento e forma
+## Spacing and shape
 
-- `--radius: 14px` — raio padrão de cards, terminal, tree, modal, botões.
-- Seções internas usam `py-22` desktop / `py-14` mobile (`max-[860px]`), com
-  `border-t border-border` entre seções consecutivas (exceto a Hero).
-- Container central: `max-w-[1120px]`, `px-6`.
-- Alvos de toque interativos (grafo, botões) respeitam mínimo de `44px`.
+- `--radius: 14px` — default radius for cards, terminal, tree, modal, buttons.
+- Inner sections use `py-22` desktop / `py-14` mobile (`max-[860px]`), with
+  `border-t border-border` between consecutive sections (except the Hero).
+- Central container: `max-w-[1120px]`, `px-6`.
+- Interactive touch targets (graph, buttons) respect a `44px` minimum.
 
 ## Motion
 
-- `Reveal` (fade-up genérico): `opacity 0→1`, `y: 18px→0`, `0.6s ease-out`, disparado
-  uma vez ao entrar em viewport (`whileInView`, `once: true, amount: 0.15`); stagger
-  opcional de `90ms` por índice.
-- Terminal typewriter / árvore / chips: ver `docs/ARQUITETURA.md` §3.
-- Tudo respeita `prefers-reduced-motion: reduce` — reset genérico (`* { animation:
-  none !important }`) mais o caso especial do grafo SVG (`stroke-dashoffset`, ver
-  `docs/ARQUITETURA.md` §5) e o "instant, no transition" de `Reveal`/`NodeModal`/`Toast`
-  via `useReducedMotion()`.
+- `Reveal` (generic fade-up): `opacity 0→1`, `y: 18px→0`, `0.6s ease-out`,
+  triggered once on entering the viewport (`whileInView`, `once: true, amount:
+  0.15`); optional `90ms` stagger per index.
+- Terminal typewriter / tree / chips: see `docs/ARQUITETURA.md` §3.
+- Everything respects `prefers-reduced-motion: reduce` — generic reset
+  (`* { animation: none !important }`) plus the SVG graph's special case
+  (`stroke-dashoffset`, see `docs/ARQUITETURA.md` §5) and the "instant, no
+  transition" behavior of `Reveal`/`NodeModal`/`Toast` via
+  `useReducedMotion()`.
 
 ## Logo
 
-`MindLogo.tsx` (wordmark "MIND" em blocos geométricos) e `src/app/icon.svg`
-(favicon) — desenhados pelo Felipe, não pelo mockup original. Ambos usam `var(--fg)` e
-`var(--green)` (o SVG do favicon replica os mesmos hex diretamente, já que favicons
-não herdam CSS custom properties da página). 2ª versão (2026-07-17) adicionou um
-acento de círculo (halo + núcleo verde) dentro da curva do "D". Ao atualizar a logo,
-propagar nos três lugares onde ela vive: `MindLogo.tsx` e `icon.svg` aqui, e o card do
-mind em `cafelabs-portifolio` (`src/components/ui/mind-logo.tsx`).
+`MindLogo.tsx` (the "MIND" wordmark in geometric blocks) and
+`src/app/icon.svg` (favicon) — designed by Felipe, not by the original
+mockup. Both use `var(--fg)` and `var(--green)` (the favicon's SVG replicates
+the same hex values directly, since favicons don't inherit the page's CSS
+custom properties). 2nd version (2026-07-17) added a circle accent (halo +
+green core) inside the curve of the "D". When updating the logo, propagate it
+in the three places it lives: `MindLogo.tsx` and `icon.svg` here, and the
+mind card in `cafelabs-portifolio`
+(`src/components/ui/mind-logo.tsx`).

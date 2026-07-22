@@ -1,50 +1,53 @@
+**[Leia em Português](DEPLOY.pt-br.md)**
+
 # Deploy — mind-landing
 
-## Onde vive
+## Where it lives
 
-- **Repositório:** `CafeLabsDev/mind-landing` (GitHub, público). Remote configurado
-  em HTTPS (sem SSH neste ambiente).
-- **Hospedagem:** Vercel.
-- **Domínio:** `mind.cafelabs.net`.
+- **Repository:** `CafeLabsDev/mind-landing` (GitHub, public). Remote
+  configured over HTTPS (no SSH in this environment).
+- **Hosting:** Vercel.
+- **Domain:** `mind.cafelabs.net`.
 
-Não há nenhum arquivo de configuração de deploy commitado no repo (sem
-`vercel.json`, sem workflow em `.github/workflows/`) — a Vercel detecta e builda
-projetos Next.js pela convenção do framework, então o pipeline inteiro (build
-command, output, variáveis de ambiente, domínio) é configurado direto no dashboard da
-Vercel, fora deste repositório.
+There is no deploy configuration file committed in the repo (no
+`vercel.json`, no workflow under `.github/workflows/`) — Vercel detects and
+builds Next.js projects by framework convention, so the entire pipeline
+(build command, output, environment variables, domain) is configured
+directly in the Vercel dashboard, outside this repository.
 
 ## Pipeline
 
-Padrão de projeto Next.js na Vercel via integração Git:
+Standard Next.js-on-Vercel project via Git integration:
 
-1. Push/merge em `main` → Vercel detecta o webhook do GitHub, builda
-   (`npm install && npm run build`) e publica automaticamente.
-2. Pull requests (se abertos) geram Preview Deployments com URL própria — não
-   aplicável ao fluxo atual do projeto, que trabalha direto em `main` (sem branch de
-   feature nem PR, por convenção de trabalho do Felipe).
+1. Push/merge to `main` → Vercel detects the GitHub webhook, builds
+   (`npm install && npm run build`), and publishes automatically.
+2. Pull requests (if opened) generate Preview Deployments with their own URL —
+   not applicable to the project's current workflow, which works directly on
+   `main` (no feature branch nor PR, per Felipe's working convention).
 
-`TODO: confirmar`: se o projeto Vercel já está de fato criado/conectado e o domínio
-`mind.cafelabs.net` já aponta pra ele. Não há como verificar isso a partir do
-repositório (nenhuma credencial/API da Vercel disponível neste ambiente) — a última
-atualização conhecida no vault de conhecimento do Felipe registra o repositório criado
-e com push feito, mas o deploy em si e o DNS ficando "por conta do Felipe", fora do
-fluxo do time de subagentes que construiu o site.
+`TODO: confirmar`: whether the Vercel project is already actually
+created/connected and whether the `mind.cafelabs.net` domain already points
+to it. There is no way to verify this from the repository (no Vercel
+credential/API available in this environment) — the last known update in
+Felipe's knowledge vault records the repository created and pushed, but the
+deploy itself and the DNS being "on Felipe," outside the workflow of the
+subagent team that built the site.
 
-## Ambientes
+## Environments
 
-Só existe produção (`mind.cafelabs.net`). Sem ambiente de staging separado —
-consistente com o restante do projeto: landing estática, sem dado de usuário, sem
-necessidade de isolar dados entre ambientes.
+Only production exists (`mind.cafelabs.net`). No separate staging
+environment — consistent with the rest of the project: static landing, no
+user data, no need to isolate data between environments.
 
 ## Rollback
 
-Não há pipeline customizado — rollback é o padrão da Vercel: reverter para um
-deployment anterior direto pelo dashboard (cada build fica disponível como um
-deployment imutável, promovível a produção a qualquer momento), ou reverter o commit
-em `main` e deixar o próximo build substituir o atual.
+There is no custom pipeline — rollback is Vercel's default: revert to a
+previous deployment directly from the dashboard (every build stays available
+as an immutable deployment, promotable to production at any time), or revert
+the commit on `main` and let the next build replace the current one.
 
-## Variáveis de ambiente
+## Environment variables
 
-Nenhuma variável de ambiente é lida pelo código (`grep` por `process.env` no
-`src/` não encontra nenhum uso). `@vercel/analytics` funciona automaticamente em
-produção na Vercel, sem chave/configuração manual.
+No environment variable is read by the code (`grep` for `process.env` in
+`src/` finds no usage). `@vercel/analytics` works automatically in production
+on Vercel, with no manual key/configuration.
