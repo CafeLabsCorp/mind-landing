@@ -28,7 +28,9 @@ export function Hero() {
             <PlusIcon /> open source · MIT
           </span>
           <h1 className="max-w-[640px] text-[56px] leading-[1.06] max-[860px]:text-4xl">
-            {t("titleBefore")} <span className="text-green">{t("titleAccent")}</span>
+            {t("titleBefore")}
+            <br />
+            <span className="text-green">{t("titleAccent")}</span>
           </h1>
           <p className="mt-5.5 max-w-[540px] text-lg leading-[1.6] text-muted max-[860px]:text-base">
             {t.rich("subtitle", {
