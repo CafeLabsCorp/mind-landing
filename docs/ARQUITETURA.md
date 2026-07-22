@@ -1,139 +1,152 @@
-# Arquitetura — mind-landing
+**[Leia em Português](ARQUITETURA.pt-br.md)**
 
-Site estático de uma página só (Next.js App Router), sem backend, sem rota além da
-raiz, sem estado que sobreviva a um reload. A complexidade real do projeto está toda
-em animação/temporização de UI e em acessibilidade dos poucos elementos interativos
-(grafo de nós, modal, CTAs de cópia) — não em dados ou infra.
+# Architecture — mind-landing
 
-## 1. Composição da página
+Single-page static site (Next.js App Router), no backend, no route besides the
+root, no state that survives a reload. The real complexity of the project is
+entirely in UI animation/timing and in the accessibility of its few
+interactive elements (node graph, modal, copy CTAs) — not in data or infra.
 
-`src/app/page.tsx` empilha as seções em ordem fixa, uma por componente:
+## 1. Page composition
+
+`src/app/page.tsx` stacks the sections in a fixed order, one per component:
 
 ```
 SiteHeader → Hero → ConceptSection → FeaturesSection → ProofSection
 → HowToStart → FinalCta → Footer
 ```
 
-Não há roteamento client-side nem outras rotas — `src/app/layout.tsx` define fontes,
-metadata e monta `ToastProvider` (contexto global) e `<Analytics />`
-(`@vercel/analytics`) uma vez, no topo.
+There is no client-side routing nor other routes — `src/app/layout.tsx`
+defines fonts, metadata, and mounts `ToastProvider` (global context) and
+`<Analytics />` (`@vercel/analytics`) once, at the top.
 
-Cada seção é auto-contida (título + copy + o que for específico dela); a única peça
-verdadeiramente reutilizada entre seções é `Reveal` (fade-up on-scroll) e `GitHubLink`
-(link instrumentado pro repositório).
+Each section is self-contained (title + copy + whatever is specific to it);
+the only piece truly reused across sections is `Reveal` (fade-up on-scroll)
+and `GitHubLink` (instrumented link to the repository).
 
-## 2. Fluxo de estado — onde ele existe e por quê
+## 2. State flow — where it exists and why
 
-O projeto não tem estado de aplicação (nada de dados de servidor, nada persistido).
-O estado que existe é local a cada peça interativa:
+The project has no application state (no server data, nothing persisted). The
+state that exists is local to each interactive piece:
 
-- **`ToastProvider` (`src/components/Toast.tsx`)** — único contexto React do app.
-  Expõe `useToast().showToast(message)`; renderiza uma única mensagem por vez (some
-  sozinha após `TOAST_DURATION` = 2200ms). Usado só pelo fluxo de copiar comando.
-- **`useCloneCopy` (`src/lib/useCloneCopy.ts`)** — hook por trás dos dois botões
-  "Copiar comandos de setup" (Hero e FinalCta, um hook por instância, parametrizado
-  por `location: "hero" | "final_cta"`). Sempre dispara o evento de analytics no
-  clique (a tentativa de copiar é o sinal de conversão, não o sucesso do
-  `navigator.clipboard`); se a Clipboard API falhar, ativa `showFallback` — a Hero
-  então revela um `<pre>` com o texto selecionável (`SETUP_COMMANDS`, de
-  `src/lib/site.ts`) em vez de falhar silenciosamente.
-- **`InteractiveGraph` (`src/components/InteractiveGraph.tsx`)** — orquestra
-  `NodeGraph` (SVG do grafo) e `NodeModal` (dialog de exemplo). Guarda `activeNode` e
-  qual elemento disparou a abertura (`lastFocused`), pra devolver o foco a ele quando
-  o modal fecha — via teclado (Escape), clique no backdrop ou botão de fechar.
-- **`ProofSection` (`src/components/ProofSection.tsx`)** — máquina de estado de
-  temporização mais complexa do projeto; ver §3.
-- **`SiteHeader`** — só um booleano `scrolled` (via listener de `scroll`) pra alternar
-  a classe `.scrolled` (borda inferior + leve opacidade extra no blur).
+- **`ToastProvider` (`src/components/Toast.tsx`)** — the app's only React
+  context. Exposes `useToast().showToast(message)`; renders a single message
+  at a time (disappears on its own after `TOAST_DURATION` = 2200ms). Used only
+  by the copy-command flow.
+- **`useCloneCopy` (`src/lib/useCloneCopy.ts`)** — the hook behind the two
+  "Copy setup commands" buttons (Hero and FinalCta, one hook instance each,
+  parameterized by `location: "hero" | "final_cta"`). Always fires the
+  analytics event on click (the attempt to copy is the conversion signal, not
+  the success of `navigator.clipboard`); if the Clipboard API fails, it
+  activates `showFallback` — the Hero then reveals a `<pre>` with the
+  selectable text (`SETUP_COMMANDS`, from `src/lib/site.ts`) instead of
+  failing silently.
+- **`InteractiveGraph` (`src/components/InteractiveGraph.tsx`)** — orchestrates
+  `NodeGraph` (the graph's SVG) and `NodeModal` (example dialog). Holds
+  `activeNode` and which element triggered the opening (`lastFocused`), to
+  return focus to it when the modal closes — via keyboard (Escape), backdrop
+  click, or close button.
+- **`ProofSection` (`src/components/ProofSection.tsx`)** — the project's most
+  complex timing state machine; see §3.
+- **`SiteHeader`** — just a `scrolled` boolean (via a `scroll` listener) to
+  toggle the `.scrolled` class (bottom border + slightly extra blur opacity).
 
-## 3. `ProofSection`: terminal typewriter + reveal de árvore + cascata de chips
+## 3. `ProofSection`: typewriter terminal + tree reveal + chip cascade
 
-Dispara uma única vez, quando o terminal entra em viewport (`useInView(..., { once:
-true, amount: 0.3 })` do Framer Motion) — `started.current` garante que não reinicia
-em scrolls subsequentes.
+Fires once, when the terminal enters the viewport (`useInView(..., { once:
+true, amount: 0.3 })` from Framer Motion) — `started.current` ensures it does
+not restart on subsequent scrolls.
 
-Sequência, em ordem:
+Sequence, in order:
 
-1. **Typewriter**: digita `TERMINAL_LINES` (sequência real do setup do
-   `mind-template`, fork manual com dois remotes) caractere a caractere, 10ms por
-   caractere, 130ms de pausa entre linhas. Ao terminar a última linha, liga o cursor
-   piscando (`showCursor`).
-2. Aos 1700ms depois do início: revela as linhas de `TREE_LINES` (árvore de pastas)
-   em cascata, 90ms entre cada uma.
-3. Aos 2900ms depois do início: ativa a fase dos chips de Skill (`skillPhaseActive`),
-   dando destaque ao chip final "Claude lê 1 arquivo".
+1. **Typewriter**: types `TERMINAL_LINES` (the real setup sequence for
+   `mind-template`, manual fork with two remotes) character by character,
+   10ms per character, 130ms pause between lines. When the last line finishes,
+   it turns on the blinking cursor (`showCursor`).
+2. At 1700ms after start: reveals the `TREE_LINES` (folder tree) lines in a
+   cascade, 90ms between each.
+3. At 2900ms after start: activates the Skill chips phase
+   (`skillPhaseActive`), highlighting the final "Claude reads 1 file" chip.
 
-Todos os `setTimeout`/`setInterval` são coletados em arrays e limpos no cleanup do
-`useEffect` — evita disparos após unmount.
+All `setTimeout`/`setInterval` calls are collected in arrays and cleared in
+the `useEffect` cleanup — avoids firing after unmount.
 
-**Bug histórico corrigido (commit `2b68198`):** o índice da linha sendo digitada era
-lido *dentro* do updater funcional de `setLines`, mas `lineIndex` era incrementado de
-forma síncrona no mesmo callback do `setInterval`. Como o React só executa o updater
-depois que o callback termina, no último caractere de cada linha o updater already via
-o índice incrementado — gravando o texto completo na posição da *próxima* linha em
-vez da atual, cortando o último caractere da linha certa e duplicando a errada. Fix:
-capturar `currentLineIndex` antes do `setLines`, e usá-lo dentro do updater. Relevante
-pra quem for mexer nessa função de novo: qualquer refactor que leia uma variável
-mutável de fora dentro de um updater funcional do React tem o mesmo risco.
+**Historical bug fixed (commit `2b68198`):** the index of the line being typed
+was read *inside* the functional updater of `setLines`, but `lineIndex` was
+incremented synchronously in the same `setInterval` callback. Since React only
+runs the updater after the callback finishes, on the last character of each
+line the updater already saw the incremented index — writing the full text at
+the position of the *next* line instead of the current one, cutting off the
+last character of the right line and duplicating the wrong one. Fix: capture
+`currentLineIndex` before the `setLines` call, and use it inside the updater.
+Relevant for anyone touching this function again: any refactor that reads a
+mutable outer variable inside a React functional updater carries the same
+risk.
 
-## 4. Grafo interativo (`NodeGraph` + `NodeModal`)
+## 4. Interactive graph (`NodeGraph` + `NodeModal`)
 
-O SVG do grafo é puramente decorativo (`aria-hidden`, `focusable="false"`) — a
-interação real acontece em botões HTML transparentes empilhados nas mesmas
-coordenadas (`.node-hit-layer` / `.node-hit`, `44×44px`, mínimo recomendado de área de
-toque). Isso dá semântica nativa de botão (ordem de foco, ativação por Enter/Espaço,
-nome pro leitor de tela) de graça, sem duplicar lógica de acessibilidade em cima de
-elementos SVG. **Não fundir as duas camadas** — é proposital, replica o mockup 1:1.
+The graph's SVG is purely decorative (`aria-hidden`, `focusable="false"`) —
+the real interaction happens on transparent HTML buttons stacked at the same
+coordinates (`.node-hit-layer` / `.node-hit`, `44×44px`, the recommended
+minimum touch target size). This gives native button semantics (focus order,
+Enter/Space activation, screen-reader name) for free, without duplicating
+accessibility logic on top of SVG elements. **Do not merge the two layers** —
+this is intentional, it replicates the mockup 1:1.
 
-`NodeModal` implementa um focus trap manual (Tab/Shift+Tab preso entre o primeiro e
-o último elemento focável do diálogo) e fecha com Escape ou clique no backdrop;
-respeita `prefers-reduced-motion` via `useReducedMotion()` do Framer Motion,
-desligando as animações de entrada/saída em vez de só acelerá-las.
+`NodeModal` implements a manual focus trap (Tab/Shift+Tab kept between the
+first and last focusable element of the dialog) and closes on Escape or
+backdrop click; it respects `prefers-reduced-motion` via
+`useReducedMotion()` from Framer Motion, turning off entry/exit animations
+instead of merely speeding them up.
 
-Dados do grafo (`src/lib/graph-data.ts`) usam nomes de nós genéricos (Mind, Projetos,
-Tarefas, Estudos, Pessoal, Conhecimentos, Hobby, Empresa) — decisão de produto: nunca
-expor conteúdo ou nomes reais do vault pessoal do Felipe na landing pública.
+Graph data (`src/lib/graph-data.ts`) uses generic node names (Mind, Projects,
+Tasks, Studies, Personal, Knowledge, Hobby, Company) — a product decision:
+never expose real content or names from Felipe's personal vault on the public
+landing.
 
-## 5. Decisões técnicas não-óbvias
+## 5. Non-obvious technical decisions
 
-- **`color-mix()` em CSS puro, não a sintaxe de alpha do Tailwind**
-  (`globals.css`, comentário no topo do arquivo): o alpha modifier do Tailwind mistura
-  em `oklab`, o que desloca ligeiramente as cores em relação ao `color-mix(in srgb,
-  ...)` que o mockup aprovado usa como fonte de verdade. Por isso alguns tints (badge
-  do eyebrow, sombra do botão primário, bordas/tags accent, glow do CTA final) ficam
-  como CSS puro em vez de virarem utilities Tailwind — não é código morto nem
-  esquecido, é intencional.
-- **`prefers-reduced-motion` e o grafo SVG**: o reset genérico
-  (`* { animation: none !important }`) por si só deixava arestas e nós do grafo
-  invisíveis, porque zerar só a `opacity` não reseta o `stroke-dashoffset` das arestas
-  — ele fica travado no valor inicial (não desenhado) da animação `draw` desligada.
-  A regra de `prefers-reduced-motion` em `globals.css` reseta as duas propriedades
-  juntas por causa disso (comentário inline documenta o porquê).
-- **`HEADER_HEIGHT_PX = 77` em `Hero.tsx`**: valor medido (não computado via CSS/JS)
-  da altura renderizada do `SiteHeader`, usado só pra a Hero preencher exatamente
-  `100dvh` menos o header. Se o header mudar de padding/altura, esse número precisa
-  ser remedido manualmente — não há mecanismo automático de sincronia.
-- **Indicador de scroll em estilo terminal, não seta genérica** (commit `c49858e`):
-  primeira versão era uma seta com bounce, praticamente idêntica ao indicador da
-  landing irmã `dindin-landing` feito no mesmo ciclo; foi refeita reaproveitando a
-  linguagem visual "CLI" que o site já usa em `ProofSection` — prompt `$` verde +
-  cursor piscando (a mesma classe `.cursor` do terminal), em vez de inventar uma
-  animação nova. Faz parte do padrão estrutural de landing da Café Labs (hero 100dvh
-  + indicador de scroll + acesso rápido ao produto) — ver o nó de conhecimento
-  `cafelabs/padroes-landing.md` no vault `mind` do Felipe.
-- **Grafo nunca vira `display: none` no mobile**: em telas `<=860px` ele é demovido
-  pra depois dos CTAs (não escondido) — conjunto de nós reduzido (`.leaf-extra`
-  ocultos), mas continua clicável com alvos `>=44px`.
-- **Conteúdo é fonte-de-verdade do mockup aprovado, não do código**: qualquer mudança
-  de copy, paleta ou timing de animação deveria primeiro reconciliar com o mockup
-  HTML original (não versionado neste repo — `TODO: confirmar` onde ele vive hoje)
-  antes de alterar o componente livremente.
+- **`color-mix()` in plain CSS, not Tailwind's alpha syntax**
+  (`globals.css`, comment at the top of the file): Tailwind's alpha modifier
+  mixes in `oklab`, which slightly shifts colors relative to the
+  `color-mix(in srgb, ...)` that the approved mockup uses as source of truth.
+  That's why some tints (eyebrow badge, primary button shadow, accent
+  borders/tags, final CTA glow) remain plain CSS instead of becoming Tailwind
+  utilities — it's not dead or forgotten code, it's intentional.
+- **`prefers-reduced-motion` and the SVG graph**: the generic reset
+  (`* { animation: none !important }`) by itself left the graph's edges and
+  nodes invisible, because zeroing only `opacity` doesn't reset the edges'
+  `stroke-dashoffset` — it stays stuck at the initial (undrawn) value of the
+  disabled `draw` animation. The `prefers-reduced-motion` rule in
+  `globals.css` resets both properties together because of this (inline
+  comment documents why).
+- **`HEADER_HEIGHT_PX = 77` in `Hero.tsx`**: a measured value (not computed
+  via CSS/JS) of the `SiteHeader`'s rendered height, used only so the Hero
+  fills exactly `100dvh` minus the header. If the header's padding/height
+  changes, this number needs to be re-measured manually — there is no
+  automatic sync mechanism.
+- **Terminal-style scroll indicator, not a generic arrow** (commit
+  `c49858e`): the first version was a bouncing arrow, nearly identical to the
+  indicator on the sibling landing `dindin-landing` built in the same cycle;
+  it was redone reusing the "CLI" visual language the site already uses in
+  `ProofSection` — a green `$` prompt + blinking cursor (the same `.cursor`
+  class as the terminal), instead of inventing a new animation. It's part of
+  Café Labs' structural landing pattern (100dvh hero + scroll indicator +
+  quick access to the product) — see the knowledge node
+  `cafelabs/padroes-landing.md` in Felipe's `mind` vault.
+- **The graph never becomes `display: none` on mobile**: on screens
+  `<=860px` it is moved to after the CTAs (not hidden) — a reduced set of
+  nodes (`.leaf-extra` hidden), but it stays clickable with `>=44px` targets.
+- **Content is sourced from the approved mockup, not from the code**: any
+  change to copy, palette, or animation timing should first be reconciled
+  with the original HTML mockup (not versioned in this repo — `TODO:
+  confirmar` where it lives today) before freely changing the component.
 
-## 6. Instrumentação
+## 6. Instrumentation
 
-Dois eventos de conversão (`@vercel/analytics`, via `src/lib/analytics.ts`):
-`copy_clone_command` (clique nos botões de copiar setup) e `click_github` (clique em
-qualquer link pro repositório). Ambos carregam `location` para diferenciar Hero,
-header, seção final e footer entre si. Metas de referência (não aplicadas no código,
-só como contexto de produto): clique-GitHub acima de 3% dos pageviews; taxa de cópia
-pelo menos metade da taxa de clique.
+Two conversion events (`@vercel/analytics`, via `src/lib/analytics.ts`):
+`copy_clone_command` (click on the setup copy buttons) and `click_github`
+(click on any link to the repository). Both carry `location` to distinguish
+Hero, header, final section, and footer from one another. Reference targets
+(not enforced in code, just as product context): GitHub click above 3% of
+pageviews; copy rate at least half the click rate.
