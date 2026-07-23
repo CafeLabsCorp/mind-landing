@@ -5,7 +5,7 @@
 Visual identity of the "mind" product itself (it has no separate codename of
 its own, unlike other Café Labs landings) — dark, technical, "terminal/CLI"
 aesthetic, implemented 1:1 from an already-approved HTML mockup. All tokens
-below come from `src/app/globals.css` (`:root` and the
+below come from `src/app/[locale]/globals.css` (`:root` and the
 `@media (prefers-color-scheme: light)` block).
 
 ## Palette

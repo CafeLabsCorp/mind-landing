@@ -19,6 +19,7 @@ e de conteúdo (ver [docs/DESIGN.md](docs/DESIGN.md) e [docs/ARQUITETURA.md](doc
 | --- | --- |
 | Framework | Next.js 16 (App Router), React 19 |
 | Estilo | Tailwind CSS v4 (tokens via `@theme inline`) + CSS puro pontual (ver [docs/ARQUITETURA.md](docs/ARQUITETURA.md)) |
+| i18n | next-intl (rotas prefixadas por locale `/pt`, `/en`; padrão `pt`) |
 | Animação | Framer Motion (`whileInView`, `AnimatePresence`) |
 | Fontes | Space Grotesk (display), Inter (corpo), JetBrains Mono (mono) via `next/font/google` |
 | Analytics | `@vercel/analytics` (eventos customizados) |
@@ -47,19 +48,31 @@ npm run start   # serve o build de produção
 
 ```
 src/
-├── app/                # App Router: layout, página única, globals.css, favicon
-├── components/         # Um componente por seção da landing + peças reutilizáveis
+├── app/
+│   ├── [locale]/        # App Router: layout, página única, globals.css — uma
+│   │                     # instância por locale (next-intl), não por rota real
+│   └── icon.svg          # favicon (fica fora de [locale], não pode voltar pra dentro)
+├── components/          # Um componente por seção da landing + peças reutilizáveis
 │   ├── Hero.tsx, ConceptSection.tsx, FeaturesSection.tsx, ProofSection.tsx,
 │   │   HowToStart.tsx, FinalCta.tsx, Footer.tsx, SiteHeader.tsx  — seções da página
 │   ├── InteractiveGraph.tsx, NodeGraph.tsx, NodeModal.tsx        — grafo de nós da hero
+│   ├── ui/language-switcher.tsx                                  — toggle PT/EN
 │   └── GitHubLink.tsx, Reveal.tsx, Toast.tsx, MindLogo.tsx, icons.tsx — peças comuns
-└── lib/                # site.ts (constantes/copy), graph-data.ts (nós do grafo),
-                         # analytics.ts, useCloneCopy.ts (hook do CTA de copiar)
+├── i18n/                # next-intl: routing.ts (locales/padrão), request.ts
+│                         # (carregamento de mensagens), navigation.ts (Link/router
+│                         # que respeitam locale)
+├── lib/                 # site.ts (constantes/copy), graph-data.ts (nós do grafo),
+│                         # analytics.ts, useCloneCopy.ts + useSetupCommands.ts (CTA de copiar)
+└── proxy.ts              # middleware do next-intl: detecção/redirect de locale no edge
+
+messages/                # en.json, pt.json — todas as strings de UI, um namespace por seção
 ```
 
-Página única (`src/app/page.tsx`) compõe as seções em ordem: Header → Hero → Conceito →
-Features → Prova (terminal) → Como começar → CTA final → Footer. Detalhe de cada peça
-em [docs/ARQUITETURA.md](docs/ARQUITETURA.md).
+Página única (`src/app/[locale]/page.tsx`) compõe as seções em ordem: Header → Hero →
+Conceito → Features → Prova (terminal) → Como começar → CTA final → Footer. Existe só
+uma página, duplicada por locale via next-intl (`/pt` e `/en`, `pt` é o padrão) — não
+duas páginas diferentes. Detalhe de cada peça e do setup de i18n em
+[docs/ARQUITETURA.md](docs/ARQUITETURA.md).
 
 ## Analytics
 

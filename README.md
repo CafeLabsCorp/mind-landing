@@ -19,6 +19,7 @@ of truth (see [docs/DESIGN.md](docs/DESIGN.md) and [docs/ARQUITETURA.md](docs/AR
 | --- | --- |
 | Framework | Next.js 16 (App Router), React 19 |
 | Styling | Tailwind CSS v4 (tokens via `@theme inline`) + occasional plain CSS (see [docs/ARQUITETURA.md](docs/ARQUITETURA.md)) |
+| i18n | next-intl (locale-prefixed routes `/pt`, `/en`; default `pt`) |
 | Animation | Framer Motion (`whileInView`, `AnimatePresence`) |
 | Fonts | Space Grotesk (display), Inter (body), JetBrains Mono (mono) via `next/font/google` |
 | Analytics | `@vercel/analytics` (custom events) |
@@ -47,19 +48,30 @@ npm run start   # serve the production build
 
 ```
 src/
-├── app/                # App Router: layout, single page, globals.css, favicon
-├── components/         # One component per landing section + reusable pieces
+├── app/
+│   ├── [locale]/        # App Router: layout, single page, globals.css — one instance
+│   │                     # per locale (next-intl), not per real route
+│   └── icon.svg          # favicon (kept outside [locale], must not move back in)
+├── components/          # One component per landing section + reusable pieces
 │   ├── Hero.tsx, ConceptSection.tsx, FeaturesSection.tsx, ProofSection.tsx,
 │   │   HowToStart.tsx, FinalCta.tsx, Footer.tsx, SiteHeader.tsx  — page sections
 │   ├── InteractiveGraph.tsx, NodeGraph.tsx, NodeModal.tsx        — hero node graph
+│   ├── ui/language-switcher.tsx                                  — PT/EN toggle
 │   └── GitHubLink.tsx, Reveal.tsx, Toast.tsx, MindLogo.tsx, icons.tsx — shared pieces
-└── lib/                # site.ts (constants/copy), graph-data.ts (graph nodes),
-                         # analytics.ts, useCloneCopy.ts (copy CTA hook)
+├── i18n/                # next-intl: routing.ts (locales/default), request.ts
+│                         # (message loading), navigation.ts (locale-aware Link/router)
+├── lib/                 # site.ts (constants/copy), graph-data.ts (graph nodes),
+│                         # analytics.ts, useCloneCopy.ts + useSetupCommands.ts (copy CTA)
+└── proxy.ts              # next-intl middleware: locale detection/redirect at the edge
+
+messages/                # en.json, pt.json — all UI strings, one namespace per section
 ```
 
-The single page (`src/app/page.tsx`) composes the sections in order: Header → Hero →
-Concept → Features → Proof (terminal) → How to start → Final CTA → Footer. Details of
-each piece in [docs/ARQUITETURA.md](docs/ARQUITETURA.md).
+The single page (`src/app/[locale]/page.tsx`) composes the sections in order: Header →
+Hero → Concept → Features → Proof (terminal) → How to start → Final CTA → Footer.
+There is only one page, duplicated per locale by next-intl (`/pt` and `/en`, `pt` is
+default) — not two different pages. Details of each piece and of the i18n setup in
+[docs/ARQUITETURA.md](docs/ARQUITETURA.md).
 
 ## Analytics
 

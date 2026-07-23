@@ -2,23 +2,30 @@
 
 # Architecture — mind-landing
 
-Single-page static site (Next.js App Router), no backend, no route besides the
-root, no state that survives a reload. The real complexity of the project is
-entirely in UI animation/timing and in the accessibility of its few
-interactive elements (node graph, modal, copy CTAs) — not in data or infra.
+Single-page static site (Next.js App Router), no backend, no content route
+besides the one page — duplicated per locale by next-intl (`/pt`, `/en`) — and
+no state that survives a reload. The real complexity of the project is
+entirely in UI animation/timing, i18n routing, and the accessibility of its
+few interactive elements (node graph, modal, copy CTAs) — not in data or infra.
 
 ## 1. Page composition
 
-`src/app/page.tsx` stacks the sections in a fixed order, one per component:
+`src/app/[locale]/page.tsx` stacks the sections in a fixed order, one per
+component:
 
 ```
 SiteHeader → Hero → ConceptSection → FeaturesSection → ProofSection
 → HowToStart → FinalCta → Footer
 ```
 
-There is no client-side routing nor other routes — `src/app/layout.tsx`
-defines fonts, metadata, and mounts `ToastProvider` (global context) and
-`<Analytics />` (`@vercel/analytics`) once, at the top.
+There is no client-side routing and only one real page — but it lives under
+the `[locale]` dynamic segment (`src/app/[locale]/`), so next-intl serves it
+twice, at `/pt` and `/en` (see §6). `src/app/[locale]/layout.tsx` defines
+fonts, resolves per-locale metadata (`generateMetadata`), and mounts
+`NextIntlClientProvider` wrapping `ToastProvider` (global context) and
+`<Analytics />` (`@vercel/analytics`) once, at the top. `src/app/icon.svg`
+(favicon) is intentionally kept outside `[locale]` — Vercel's build breaks if
+it moves back inside (commit `6342c53`).
 
 Each section is self-contained (title + copy + whatever is specific to it);
 the only piece truly reused across sections is `Reveal` (fade-up on-scroll)
@@ -39,8 +46,12 @@ state that exists is local to each interactive piece:
   analytics event on click (the attempt to copy is the conversion signal, not
   the success of `navigator.clipboard`); if the Clipboard API fails, it
   activates `showFallback` — the Hero then reveals a `<pre>` with the
-  selectable text (`SETUP_COMMANDS`, from `src/lib/site.ts`) instead of
-  failing silently.
+  selectable text instead of failing silently. The text itself comes from
+  `useSetupCommands` (`src/lib/useSetupCommands.ts`), which combines the
+  fixed git/shell commands (`buildSetupCommands`, `src/lib/site.ts`) with the
+  two translated `# ` comments (`SetupCommands` namespace in
+  `messages/{locale}.json`), so the copied block reads naturally in whichever
+  locale the page is in.
 - **`InteractiveGraph` (`src/components/InteractiveGraph.tsx`)** — orchestrates
   `NodeGraph` (the graph's SVG) and `NodeModal` (example dialog). Holds
   `activeNode` and which element triggered the opening (`lastFocused`), to
@@ -141,8 +152,53 @@ landing.
   change to copy, palette, or animation timing should first be reconciled
   with the original HTML mockup (not versioned in this repo — `TODO:
   confirmar` where it lives today) before freely changing the component.
+- **Known bug — three hardcoded references still point to the wrong GitHub
+  org**: `https://github.com/CafeLabsDev/mind-template` appears in
+  `src/lib/site.ts` (`GITHUB_REPO_URL`, plus the git-clone line inside
+  `buildSetupCommands`) and again, independently, in
+  `src/components/ProofSection.tsx` (`buildSetupLines`, the fake terminal
+  typed in §3). The real repositories now live under `CafeLabsCorp`
+  (`git remote -v` on this repo resolves to `CafeLabsCorp/mind-landing`; see
+  `mind/projetos/repos.md`). Net effect on the live site: the
+  header/hero/footer GitHub links (`GitHubLink`), the git-clone line copied by
+  both "Copy setup commands" buttons, and the git-clone line typed out in the
+  `ProofSection` terminal demo all point at a stale org. This needs a code fix
+  in both files (and a re-check that `README_SETUP_URL`'s anchor still
+  matches after the swap), not a docs one — flagged here so whoever picks it
+  up doesn't have to rediscover it.
 
-## 6. Instrumentation
+## 6. Internationalization (next-intl)
+
+Two locales, `pt` (default) and `en`, both always prefixed in the URL
+(`/pt`, `/en` — next-intl's default `localePrefix: "always"`, not overridden
+in `src/i18n/routing.ts`). Visiting `/` triggers `src/proxy.ts`
+(the next-intl middleware) to redirect to the best-matching locale — cookie
+first, then `Accept-Language`, falling back to `pt`.
+
+- **`src/i18n/routing.ts`** — declares `locales: ["pt", "en"]` and
+  `defaultLocale: "pt"`. Single source of truth for every other i18n piece.
+- **`src/i18n/request.ts`** — resolves the active locale per request and
+  loads the matching `messages/{locale}.json` (used server-side, e.g. in
+  `generateMetadata`).
+- **`src/i18n/navigation.ts`** — re-exports `Link`, `useRouter`,
+  `usePathname`, `getPathname` wrapped by `createNavigation(routing)`, so
+  in-app navigation stays locale-aware without manually prefixing paths.
+  Used by `LanguageSwitcher` (`src/components/ui/language-switcher.tsx`,
+  rendered in `SiteHeader`) to swap `pt` ⇄ `en` while keeping the current
+  path.
+- **`messages/en.json` / `messages/pt.json`** — one namespace per section
+  (`Hero`, `ConceptSection`, `ProofSection`, `CloneCopy`, `SetupCommands`,
+  `LanguageSwitcher`, etc.), kept in sync (same key set in both files as of
+  this audit).
+- **`src/app/[locale]/layout.tsx`** — validates the incoming `locale` param
+  against `routing.locales` (`notFound()` otherwise) and wraps the tree in
+  `NextIntlClientProvider` so client components can call `useTranslations`.
+
+This is unrelated to the EN/PT split of `README.md`/`docs/*.md` in this
+repository — that's documentation for humans/tools reading the repo;
+next-intl is the live site's own UI language switch, for end users.
+
+## 7. Instrumentation
 
 Two conversion events (`@vercel/analytics`, via `src/lib/analytics.ts`):
 `copy_clone_command` (click on the setup copy buttons) and `click_github`

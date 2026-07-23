@@ -2,23 +2,31 @@
 
 # Arquitetura — mind-landing
 
-Site estático de uma página só (Next.js App Router), sem backend, sem rota além da
-raiz, sem estado que sobreviva a um reload. A complexidade real do projeto está toda
-em animação/temporização de UI e em acessibilidade dos poucos elementos interativos
-(grafo de nós, modal, CTAs de cópia) — não em dados ou infra.
+Site estático de uma página só (Next.js App Router), sem backend, sem rota de
+conteúdo além da própria página — duplicada por locale pelo next-intl (`/pt`,
+`/en`) — e sem estado que sobreviva a um reload. A complexidade real do
+projeto está toda em animação/temporização de UI, roteamento de i18n e
+acessibilidade dos poucos elementos interativos (grafo de nós, modal, CTAs de
+cópia) — não em dados ou infra.
 
 ## 1. Composição da página
 
-`src/app/page.tsx` empilha as seções em ordem fixa, uma por componente:
+`src/app/[locale]/page.tsx` empilha as seções em ordem fixa, uma por componente:
 
 ```
 SiteHeader → Hero → ConceptSection → FeaturesSection → ProofSection
 → HowToStart → FinalCta → Footer
 ```
 
-Não há roteamento client-side nem outras rotas — `src/app/layout.tsx` define fontes,
-metadata e monta `ToastProvider` (contexto global) e `<Analytics />`
-(`@vercel/analytics`) uma vez, no topo.
+Não há roteamento client-side e só existe uma página de verdade — mas ela vive
+dentro do segmento dinâmico `[locale]` (`src/app/[locale]/`), então o
+next-intl a serve duas vezes, em `/pt` e `/en` (ver §6).
+`src/app/[locale]/layout.tsx` define fontes, resolve a metadata por locale
+(`generateMetadata`) e monta `NextIntlClientProvider` envolvendo
+`ToastProvider` (contexto global) e `<Analytics />` (`@vercel/analytics`) uma
+vez, no topo. `src/app/icon.svg` (favicon) fica de propósito fora de
+`[locale]` — o build da Vercel quebra se ele voltar pra dentro (commit
+`6342c53`).
 
 Cada seção é auto-contida (título + copy + o que for específico dela); a única peça
 verdadeiramente reutilizada entre seções é `Reveal` (fade-up on-scroll) e `GitHubLink`
@@ -37,8 +45,12 @@ O estado que existe é local a cada peça interativa:
   por `location: "hero" | "final_cta"`). Sempre dispara o evento de analytics no
   clique (a tentativa de copiar é o sinal de conversão, não o sucesso do
   `navigator.clipboard`); se a Clipboard API falhar, ativa `showFallback` — a Hero
-  então revela um `<pre>` com o texto selecionável (`SETUP_COMMANDS`, de
-  `src/lib/site.ts`) em vez de falhar silenciosamente.
+  então revela um `<pre>` com o texto selecionável em vez de falhar silenciosamente.
+  O texto em si vem de `useSetupCommands` (`src/lib/useSetupCommands.ts`), que
+  combina os comandos git/shell fixos (`buildSetupCommands`, `src/lib/site.ts`) com
+  os dois comentários `# ` traduzidos (namespace `SetupCommands` em
+  `messages/{locale}.json`), pra o bloco copiado ler naturalmente no locale em que a
+  página está.
 - **`InteractiveGraph` (`src/components/InteractiveGraph.tsx`)** — orquestra
   `NodeGraph` (SVG do grafo) e `NodeModal` (dialog de exemplo). Guarda `activeNode` e
   qual elemento disparou a abertura (`lastFocused`), pra devolver o foco a ele quando
@@ -130,8 +142,55 @@ expor conteúdo ou nomes reais do vault pessoal do Felipe na landing pública.
   de copy, paleta ou timing de animação deveria primeiro reconciliar com o mockup
   HTML original (não versionado neste repo — `TODO: confirmar` onde ele vive hoje)
   antes de alterar o componente livremente.
+- **Bug conhecido — três referências fixas ainda apontam pra org errada no
+  GitHub**: `https://github.com/CafeLabsDev/mind-template` aparece em
+  `src/lib/site.ts` (`GITHUB_REPO_URL`, mais a linha de git-clone dentro de
+  `buildSetupCommands`) e de novo, independentemente, em
+  `src/components/ProofSection.tsx` (`buildSetupLines`, o terminal falso
+  digitado no §3). Os repositórios reais hoje vivem sob `CafeLabsCorp`
+  (`git remote -v` deste repo resolve pra `CafeLabsCorp/mind-landing`; ver
+  `mind/projetos/repos.md`). Efeito líquido no site ao vivo: os links do
+  GitHub no header/hero/footer (`GitHubLink`), a linha de `git clone` copiada
+  pelos dois botões "Copiar comandos de setup" e a linha de `git clone`
+  digitada na demo do terminal do `ProofSection` apontam todos pra uma org
+  desatualizada. Isso precisa de um fix de código nos dois arquivos (e
+  reconferir se a âncora de `README_SETUP_URL` continua batendo depois da
+  troca), não de doc — registrado aqui pra quem for mexer não precisar
+  redescobrir.
 
-## 6. Instrumentação
+## 6. Internacionalização (next-intl)
+
+Dois locales, `pt` (padrão) e `en`, sempre prefixados na URL (`/pt`, `/en` —
+`localePrefix: "always"` é o padrão do next-intl, não sobrescrito em
+`src/i18n/routing.ts`). Visitar `/` dispara `src/proxy.ts` (o middleware do
+next-intl) pra redirecionar pro locale que melhor combina — cookie primeiro,
+depois `Accept-Language`, caindo pra `pt` por padrão.
+
+- **`src/i18n/routing.ts`** — declara `locales: ["pt", "en"]` e
+  `defaultLocale: "pt"`. Fonte única de verdade pra todas as outras peças de i18n.
+- **`src/i18n/request.ts`** — resolve o locale ativo por request e carrega o
+  `messages/{locale}.json` correspondente (usado no server, ex.: em
+  `generateMetadata`).
+- **`src/i18n/navigation.ts`** — reexporta `Link`, `useRouter`, `usePathname`,
+  `getPathname` envolvidos por `createNavigation(routing)`, pra navegação
+  interna continuar respeitando o locale sem prefixar caminho manualmente.
+  Usado pelo `LanguageSwitcher` (`src/components/ui/language-switcher.tsx`,
+  renderizado no `SiteHeader`) pra alternar `pt` ⇄ `en` mantendo o caminho atual.
+- **`messages/en.json` / `messages/pt.json`** — um namespace por seção (`Hero`,
+  `ConceptSection`, `ProofSection`, `CloneCopy`, `SetupCommands`,
+  `LanguageSwitcher`, etc.), mantidos sincronizados (mesmo conjunto de chaves
+  nos dois arquivos, conferido nesta auditoria).
+- **`src/app/[locale]/layout.tsx`** — valida o parâmetro `locale` recebido
+  contra `routing.locales` (`notFound()` caso contrário) e envolve a árvore em
+  `NextIntlClientProvider` pra componentes client poderem chamar
+  `useTranslations`.
+
+Isso não tem relação com a divisão EN/PT de `README.md`/`docs/*.md` deste
+repositório — aquilo é documentação para humanos/ferramentas lendo o repo; o
+next-intl é o seletor de idioma da própria UI do site ao vivo, para quem usa
+o produto.
+
+## 7. Instrumentação
 
 Dois eventos de conversão (`@vercel/analytics`, via `src/lib/analytics.ts`):
 `copy_clone_command` (clique nos botões de copiar setup) e `click_github` (clique em

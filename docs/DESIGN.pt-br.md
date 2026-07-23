@@ -5,7 +5,7 @@
 Identidade visual do produto "mind" em si (não tem codinome próprio separado, ao
 contrário de outras landings da Café Labs) — estética escura, técnica, "terminal/CLI",
 implementada 1:1 a partir de um mockup HTML já aprovado. Todos os tokens abaixo vêm de
-`src/app/globals.css` (`:root` e o bloco `@media (prefers-color-scheme: light)`).
+`src/app/[locale]/globals.css` (`:root` e o bloco `@media (prefers-color-scheme: light)`).
 
 ## Paleta
 

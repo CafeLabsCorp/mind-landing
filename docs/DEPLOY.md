@@ -4,7 +4,7 @@
 
 ## Where it lives
 
-- **Repository:** `CafeLabsDev/mind-landing` (GitHub, public). Remote
+- **Repository:** `CafeLabsCorp/mind-landing` (GitHub, public). Remote
   configured over HTTPS (no SSH in this environment).
 - **Hosting:** Vercel.
 - **Domain:** `mind.cafelabs.net`.
@@ -25,13 +25,18 @@ Standard Next.js-on-Vercel project via Git integration:
    not applicable to the project's current workflow, which works directly on
    `main` (no feature branch nor PR, per Felipe's working convention).
 
-`TODO: confirmar`: whether the Vercel project is already actually
-created/connected and whether the `mind.cafelabs.net` domain already points
-to it. There is no way to verify this from the repository (no Vercel
-credential/API available in this environment) — the last known update in
-Felipe's knowledge vault records the repository created and pushed, but the
-deploy itself and the DNS being "on Felipe," outside the workflow of the
-subagent team that built the site.
+The Vercel project is created and connected, and `mind.cafelabs.net` is live
+(deploy + DNS done manually by Felipe on 2026-07-15, outside the subagent
+workflow that built the site).
+
+**Known operational gotcha:** the connection between Vercel and the
+`CafeLabsCorp` GitHub org runs through the "Vercel" GitHub App, which has
+dropped at least twice (2026-07-21, 2026-07-23) across all 5 Café Labs sites
+on Vercel (this one included) — auto-deploy on push silently stops working
+until the app is reinstalled/reauthorized at
+[github.com/organizations/CafeLabsCorp/settings/installations](https://github.com/organizations/CafeLabsCorp/settings/installations).
+If a push to `main` doesn't show up as a new deployment, check there before
+assuming the build itself failed.
 
 ## Environments
 
