@@ -7,7 +7,7 @@ import { Reveal } from "@/components/Reveal";
 
 function buildSetupLines(originPlaceholder: string) {
   return [
-    "git clone https://github.com/CafeLabsDev/mind-template.git mind",
+    "git clone https://github.com/CafeLabsCorp/mind-template.git mind",
     "cd mind",
     "git remote rename origin upstream",
     `git remote add origin "${originPlaceholder}"`,

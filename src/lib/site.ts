@@ -1,4 +1,4 @@
-export const GITHUB_REPO_URL = "https://github.com/CafeLabsDev/mind-template";
+export const GITHUB_REPO_URL = "https://github.com/CafeLabsCorp/mind-template";
 export const GITHUB_LICENSE_URL = `${GITHUB_REPO_URL}/blob/main/LICENSE`;
 // README anchor for the full setup walkthrough. Confirmed against the real
 // heading "## Setup numa máquina nova" in mind-template/README.md — GitHub's
@@ -21,7 +21,7 @@ export function buildSetupCommands(
 ) {
   return (
     `# ${step1Comment}\n` +
-    "git clone https://github.com/CafeLabsDev/mind-template.git mind\n" +
+    "git clone https://github.com/CafeLabsCorp/mind-template.git mind\n" +
     "cd mind\n" +
     "git remote rename origin upstream\n" +
     `git remote add origin "${originPlaceholder}"\n` +
