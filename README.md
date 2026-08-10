@@ -44,6 +44,22 @@ npm run build   # production build
 npm run start   # serve the production build
 ```
 
+## Configuration
+
+No environment variables or config files are required to run this project.
+`grep` for `process.env` under `src/` finds no usage, and there's no
+`.env*` file in the repo. `@vercel/analytics` works automatically once
+deployed on Vercel, with no manual key or config (see
+[docs/DEPLOY.md](docs/DEPLOY.md)).
+
+## Tests
+
+There is no automated test suite in this project — no test runner is
+configured (`package.json` only declares `dev`, `build`, `start`, `lint`),
+and no `*.test.*`/`*.spec.*` files exist. The only automated check is
+`npm run lint` (ESLint); `npm run build` is the closest thing to an
+integration check, since it fails on type errors too.
+
 ## Folder structure
 
 ```

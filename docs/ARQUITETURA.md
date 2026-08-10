@@ -152,20 +152,14 @@ landing.
   change to copy, palette, or animation timing should first be reconciled
   with the original HTML mockup (not versioned in this repo — `TODO:
   confirmar` where it lives today) before freely changing the component.
-- **Known bug — three hardcoded references still point to the wrong GitHub
-  org**: `https://github.com/CafeLabsDev/mind-template` appears in
+- **Fixed 2026-07-23 — previously pointed at the wrong GitHub org**:
   `src/lib/site.ts` (`GITHUB_REPO_URL`, plus the git-clone line inside
-  `buildSetupCommands`) and again, independently, in
-  `src/components/ProofSection.tsx` (`buildSetupLines`, the fake terminal
-  typed in §3). The real repositories now live under `CafeLabsCorp`
-  (`git remote -v` on this repo resolves to `CafeLabsCorp/mind-landing`; see
-  `mind/projetos/repos.md`). Net effect on the live site: the
-  header/hero/footer GitHub links (`GitHubLink`), the git-clone line copied by
-  both "Copy setup commands" buttons, and the git-clone line typed out in the
-  `ProofSection` terminal demo all point at a stale org. This needs a code fix
-  in both files (and a re-check that `README_SETUP_URL`'s anchor still
-  matches after the swap), not a docs one — flagged here so whoever picks it
-  up doesn't have to rediscover it.
+  `buildSetupCommands`) and `src/components/ProofSection.tsx`
+  (`buildSetupLines`, the fake terminal typed in §3) hardcoded
+  `github.com/CafeLabsDev/mind-template` — the org the repos migrated away
+  from. Both now correctly point at `CafeLabsCorp/mind-template`, matching
+  where the repositories actually live (`git remote -v` on this repo
+  resolves to `CafeLabsCorp/mind-landing`; see `mind/projetos/repos.md`).
 
 ## 6. Internationalization (next-intl)
 
@@ -206,3 +200,81 @@ Two conversion events (`@vercel/analytics`, via `src/lib/analytics.ts`):
 Hero, header, final section, and footer from one another. Reference targets
 (not enforced in code, just as product context): GitHub click above 3% of
 pageviews; copy rate at least half the click rate.
+
+## 8. Integration surface (what talks outside this app)
+
+This site has no backend of its own — no `docs/BACKEND.md` — but it does have
+two boundaries where it talks to something external. Both are client-side,
+fire-and-forget, no request/response cycle the app waits on:
+
+- **Outbound link to the GitHub repository** (`src/components/GitHubLink.tsx`)
+  - **Addressed by:** `GITHUB_REPO_URL` / `README_SETUP_URL`
+    (`src/lib/site.ts`) — plain `<a target="_blank">`, not an API call.
+  - **In/out:** no payload; the browser just navigates. Nothing is read back
+    into the app.
+  - **Who can call it:** anyone — it's a public anchor tag, no auth.
+  - **Failure modes:** none handled explicitly; if a popup/target blocker
+    stops the new tab, nothing happens and no error surfaces to the user.
+  - **What it changes:** nothing app-side. `onClick` fires the `click_github`
+    analytics event (see below) before navigation.
+- **`@vercel/analytics` custom events** (`src/lib/analytics.ts` → `track()`,
+  thin wrapper around `@vercel/analytics`'s `track`)
+  - **Addressed by:** event name (`copy_clone_command` | `click_github`) — the
+    package handles the actual endpoint internally; there is no URL in this
+    codebase to point at. `TODO: confirmar` exact no-op/dev-mode behavior of
+    `@vercel/analytics` when not served from Vercel (undocumented in this
+    repo, not verified here).
+  - **In/out:** in — event name + `location` prop (string enum, values vary
+    per call site: `"header" | "hero" | "final_cta" | "footer"` for
+    `click_github`, `"hero" | "final_cta"` for `copy_clone_command`). Out —
+    nothing; the call is not awaited and its result isn't consumed.
+  - **Who can call it:** no auth boundary — it runs in the browser on every
+    page load/interaction; there's no server-side validation of events.
+  - **Failure modes:** silent by design. `track()` doesn't catch or surface
+    errors — a network failure or ad/tracker blocker simply means the event
+    never reaches Vercel, with no visible effect on the UI. This is
+    intentional: instrumentation must never block or degrade the actual CTA.
+  - **What it changes:** nothing in this repo's runtime state; events are
+    ingested into the Vercel Analytics dashboard, outside this codebase.
+
+No form handler, CMS, or other third-party API exists in this project as of
+this audit.
+
+## 9. End-to-end trace: "Copy setup commands"
+
+Picked over the language switch as the representative trace because it
+touches more layers of the app at once — i18n, shared state, analytics, and a
+browser API with a graceful-degradation path — rather than just a route swap.
+
+1. User clicks the "Copiar comandos de setup" button, either in `Hero`
+   (`src/components/Hero.tsx`) or `FinalCta`
+   (`src/components/FinalCta.tsx`). Both wire `onClick` straight to the
+   `copy` function returned by `useCloneCopy(location)`
+   (`src/lib/useCloneCopy.ts`), instantiated once per component with
+   `location: "hero"` or `"final_cta"` respectively.
+2. `copy()` immediately calls `track("copy_clone_command", { location })`
+   (`src/lib/analytics.ts`) — fired before the clipboard write even resolves,
+   because the click itself is the conversion signal (see §7/§8).
+3. The text being copied comes from `useSetupCommands()`
+   (`src/lib/useSetupCommands.ts`): it reads two translated `# ` comments via
+   `useTranslations("SetupCommands")` (next-intl, resolving
+   `messages/{locale}.json` for the active locale) and passes them into
+   `buildSetupCommands()` (`src/lib/site.ts`), which interpolates them into
+   the fixed git/shell command block (clone, `remote rename`, `remote add`,
+   `push`, run `setup-symlinks.sh`, run `claude`).
+4. `copy()` calls `navigator.clipboard.writeText(setupCommands)`:
+   - **Success:** `setShowFallback(false)`, then `showToast(t("copied"))`.
+     `useToast()` (`src/components/Toast.tsx`, the app's only React context)
+     sets the single toast-message state; `ToastProvider` renders it and
+     auto-clears it after `TOAST_DURATION` (2200ms).
+   - **Failure** (Clipboard API unavailable, permission denied, insecure
+     context): `setShowFallback(true)` flips local state in the calling
+     component, and `showToast(t("copyFailed"))` fires the failure toast
+     instead. Only `Hero` reads `showFallback` and conditionally renders a
+     `<pre>` with the same `setupCommands` text, selectable by hand —
+     `FinalCta` discards `showFallback` from the hook's return value and has
+     no fallback panel, so a clipboard failure there only shows the toast.
+5. Nothing is persisted anywhere — no backend, no `localStorage`. The entire
+   observable effect of the operation is: one `copy_clone_command` event
+   ingested by Vercel Analytics outside this repo, plus a transient
+   toast/clipboard-content change in the browser that's gone on reload.

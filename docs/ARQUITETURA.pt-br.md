@@ -83,7 +83,7 @@ Todos os `setTimeout`/`setInterval` são coletados em arrays e limpos no cleanup
 **Bug histórico corrigido (commit `2b68198`):** o índice da linha sendo digitada era
 lido *dentro* do updater funcional de `setLines`, mas `lineIndex` era incrementado de
 forma síncrona no mesmo callback do `setInterval`. Como o React só executa o updater
-depois que o callback termina, no último caractere de cada linha o updater already via
+depois que o callback termina, no último caractere de cada linha o updater já via
 o índice incrementado — gravando o texto completo na posição da *próxima* linha em
 vez da atual, cortando o último caractere da linha certa e duplicando a errada. Fix:
 capturar `currentLineIndex` antes do `setLines`, e usá-lo dentro do updater. Relevante
@@ -142,21 +142,15 @@ expor conteúdo ou nomes reais do vault pessoal do Felipe na landing pública.
   de copy, paleta ou timing de animação deveria primeiro reconciliar com o mockup
   HTML original (não versionado neste repo — `TODO: confirmar` onde ele vive hoje)
   antes de alterar o componente livremente.
-- **Bug conhecido — três referências fixas ainda apontam pra org errada no
-  GitHub**: `https://github.com/CafeLabsDev/mind-template` aparece em
+- **Corrigido em 2026-07-23 — antes apontava pra org errada no GitHub**:
   `src/lib/site.ts` (`GITHUB_REPO_URL`, mais a linha de git-clone dentro de
-  `buildSetupCommands`) e de novo, independentemente, em
-  `src/components/ProofSection.tsx` (`buildSetupLines`, o terminal falso
-  digitado no §3). Os repositórios reais hoje vivem sob `CafeLabsCorp`
-  (`git remote -v` deste repo resolve pra `CafeLabsCorp/mind-landing`; ver
-  `mind/projetos/repos.md`). Efeito líquido no site ao vivo: os links do
-  GitHub no header/hero/footer (`GitHubLink`), a linha de `git clone` copiada
-  pelos dois botões "Copiar comandos de setup" e a linha de `git clone`
-  digitada na demo do terminal do `ProofSection` apontam todos pra uma org
-  desatualizada. Isso precisa de um fix de código nos dois arquivos (e
-  reconferir se a âncora de `README_SETUP_URL` continua batendo depois da
-  troca), não de doc — registrado aqui pra quem for mexer não precisar
-  redescobrir.
+  `buildSetupCommands`) e `src/components/ProofSection.tsx`
+  (`buildSetupLines`, o terminal falso digitado no §3) tinham fixo
+  `github.com/CafeLabsDev/mind-template` — a org de onde os repositórios já
+  tinham migrado. Os dois agora apontam corretamente pra
+  `CafeLabsCorp/mind-template`, batendo com onde os repositórios realmente
+  vivem (`git remote -v` deste repo resolve pra `CafeLabsCorp/mind-landing`;
+  ver `mind/projetos/repos.md`).
 
 ## 6. Internacionalização (next-intl)
 
@@ -198,3 +192,86 @@ qualquer link pro repositório). Ambos carregam `location` para diferenciar Hero
 header, seção final e footer entre si. Metas de referência (não aplicadas no código,
 só como contexto de produto): clique-GitHub acima de 3% dos pageviews; taxa de cópia
 pelo menos metade da taxa de clique.
+
+## 8. Superfície de integração (o que fala com fora deste app)
+
+Este site não tem backend próprio — não existe `docs/BACKEND.md` — mas tem duas
+fronteiras onde fala com algo externo. Ambas são client-side, fire-and-forget, sem
+ciclo de requisição/resposta que o app espere:
+
+- **Link de saída pro repositório no GitHub** (`src/components/GitHubLink.tsx`)
+  - **Endereçado por:** `GITHUB_REPO_URL` / `README_SETUP_URL`
+    (`src/lib/site.ts`) — `<a target="_blank">` simples, não é chamada de API.
+  - **Entra/sai:** nenhum payload; o navegador só navega. Nada volta pro app.
+  - **Quem pode chamar:** qualquer um — é um link público, sem auth.
+  - **Modos de falha:** nenhum tratado explicitamente; se um bloqueador de
+    popup/target impedir a nova aba, nada acontece e nenhum erro aparece pro
+    usuário.
+  - **O que muda:** nada do lado do app. `onClick` dispara o evento de
+    analytics `click_github` (ver abaixo) antes da navegação.
+- **Eventos customizados do `@vercel/analytics`** (`src/lib/analytics.ts` →
+  `track()`, wrapper fino em cima do `track` do `@vercel/analytics`)
+  - **Endereçado por:** nome do evento (`copy_clone_command` |
+    `click_github`) — o pacote cuida do endpoint real internamente; não há
+    URL neste código pra apontar. `TODO: confirmar` o comportamento exato de
+    no-op/modo dev do `@vercel/analytics` quando não servido pela Vercel
+    (não documentado neste repo, não verificado aqui).
+  - **Entra/sai:** entra — nome do evento + prop `location` (enum de string,
+    valores variam por ponto de chamada: `"header" | "hero" | "final_cta" |
+    "footer"` pra `click_github`, `"hero" | "final_cta"` pra
+    `copy_clone_command`). Sai — nada; a chamada não é aguardada e o
+    resultado não é consumido.
+  - **Quem pode chamar:** sem fronteira de auth — roda no navegador a cada
+    carregamento de página/interação; não há validação server-side dos
+    eventos.
+  - **Modos de falha:** silencioso por design. `track()` não captura nem
+    expõe erros — uma falha de rede ou bloqueador de tracker só significa que
+    o evento nunca chega na Vercel, sem efeito visível na UI. É proposital:
+    instrumentação nunca deve bloquear ou degradar o CTA de verdade.
+  - **O que muda:** nada no estado runtime deste repo; os eventos são
+    ingeridos no dashboard da Vercel Analytics, fora deste código.
+
+Não existe form handler, CMS ou outra API de terceiros neste projeto até esta
+auditoria.
+
+## 9. Rastro ponta a ponta: "Copiar comandos de setup"
+
+Escolhido em vez do troca de idioma como o rastro representativo porque toca
+mais camadas do app de uma vez só — i18n, estado compartilhado, analytics e
+uma API de navegador com caminho de degradação graciosa — em vez de só trocar
+de rota.
+
+1. Usuário clica no botão "Copiar comandos de setup", seja na `Hero`
+   (`src/components/Hero.tsx`) ou na `FinalCta`
+   (`src/components/FinalCta.tsx`). Ambos ligam o `onClick` direto à função
+   `copy` retornada por `useCloneCopy(location)` (`src/lib/useCloneCopy.ts`),
+   instanciada uma vez por componente com `location: "hero"` ou
+   `"final_cta"` respectivamente.
+2. `copy()` chama imediatamente `track("copy_clone_command", { location })`
+   (`src/lib/analytics.ts`) — disparado antes mesmo da escrita no clipboard
+   resolver, porque o clique em si é o sinal de conversão (ver §7/§8).
+3. O texto copiado vem de `useSetupCommands()`
+   (`src/lib/useSetupCommands.ts`): lê dois comentários `# ` traduzidos via
+   `useTranslations("SetupCommands")` (next-intl, resolvendo
+   `messages/{locale}.json` do locale ativo) e passa pra
+   `buildSetupCommands()` (`src/lib/site.ts`), que os interpola no bloco fixo
+   de comandos git/shell (clone, `remote rename`, `remote add`, `push`,
+   rodar `setup-symlinks.sh`, rodar `claude`).
+4. `copy()` chama `navigator.clipboard.writeText(setupCommands)`:
+   - **Sucesso:** `setShowFallback(false)`, depois `showToast(t("copied"))`.
+     `useToast()` (`src/components/Toast.tsx`, único contexto React do app)
+     seta o estado de mensagem única do toast; `ToastProvider` renderiza e
+     limpa sozinho após `TOAST_DURATION` (2200ms).
+   - **Falha** (Clipboard API indisponível, permissão negada, contexto
+     inseguro): `setShowFallback(true)` vira o estado local no componente
+     que chamou, e `showToast(t("copyFailed"))` dispara o toast de falha em
+     vez do de sucesso. Só a `Hero` lê `showFallback` e renderiza
+     condicionalmente um `<pre>` com o mesmo texto de `setupCommands`,
+     selecionável à mão — a `FinalCta` descarta `showFallback` do retorno do
+     hook e não tem painel de fallback, então uma falha de clipboard ali só
+     mostra o toast.
+5. Nada é persistido em lugar nenhum — sem backend, sem `localStorage`. O
+   efeito observável inteiro da operação é: um evento `copy_clone_command`
+   ingerido pela Vercel Analytics fora deste repo, mais uma mudança
+   transitória de toast/conteúdo do clipboard no navegador que some ao
+   recarregar a página.
