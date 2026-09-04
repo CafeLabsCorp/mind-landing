@@ -33,6 +33,14 @@
   --green: #3fb950;
   --green-dim: #2ea043;
   --blue: #5b9eea;
+  /* --code-bg stays dark in both themes (it's the "always-dark" surface),
+     so anything drawn on it needs its own fixed colors instead of --fg/
+     --muted/--subtle/--green, which flip with the theme and go near-black
+     on it in light mode. Not redefined in the light media query below —
+     that's the point. */
+  --on-code: #c3c2b7;
+  --on-code-subtle: #8a887f;
+  --on-code-accent: #3fb950;
   --radius: 14px;
   --font-display-fallback: "Space Grotesk", system-ui, sans-serif;
   --font-body-fallback: "Inter", system-ui, sans-serif;
@@ -310,10 +318,10 @@ svg.graph {
   min-height: 210px;
 }
 .term-line {
-  color: var(--muted);
+  color: var(--on-code);
 }
 .term-line .prompt {
-  color: var(--green);
+  color: var(--on-code-accent);
   margin-right: 8px;
 }
 .term-line.is-comment {
@@ -321,14 +329,14 @@ svg.graph {
   font-style: italic;
 }
 .term-line .comment {
-  color: var(--subtle);
+  color: var(--on-code-subtle);
   margin-right: 8px;
 }
 .cursor {
   display: inline-block;
   width: 7px;
   height: 15px;
-  background: var(--green);
+  background: var(--on-code-accent);
   vertical-align: middle;
   margin-left: 2px;
   animation: blink 1s step-end infinite;
