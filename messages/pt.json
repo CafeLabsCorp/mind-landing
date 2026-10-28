@@ -11,7 +11,8 @@
     "ctaGithub": "Ver no GitHub",
     "copyHint": "$ crie seu repo → aponte pro seu repo → setup · sem cadastro",
     "fallbackText": "Não foi possível copiar automaticamente — selecione o bloco abaixo (edite a URL do seu repo antes de rodar):",
-    "scrollHint": "veja como funciona"
+    "scrollHint": "veja como funciona",
+    "nameMeaning": "<i>M</i>emória <i>I</i>nterligada de <i>N</i>otas e <i>D</i>ecisões"
   },
   "ConceptSection": {
     "eyebrow": "o problema",
@@ -76,7 +77,8 @@
     "footerNote": "Grátis, open source (MIT), sem cadastro."
   },
   "Footer": {
-    "repository": "Repositório"
+    "repository": "Repositório",
+    "nameMeaning": "<i>M</i>emória <i>I</i>nterligada de <i>N</i>otas e <i>D</i>ecisões"
   },
   "NodeGraph": {
     "caption": "clique num nó · exemplo do vault",

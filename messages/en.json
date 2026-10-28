@@ -11,7 +11,8 @@
     "ctaGithub": "View on GitHub",
     "copyHint": "$ create your repo → point it to yours → setup · no signup",
     "fallbackText": "Couldn't copy automatically — select the block below (edit your repo's URL before running it):",
-    "scrollHint": "see how it works"
+    "scrollHint": "see how it works",
+    "nameMeaning": "<i>M</i>emory, <i>I</i>nsight & <i>N</i>etworked <i>D</i>ecisions"
   },
   "ConceptSection": {
     "eyebrow": "the problem",
@@ -76,7 +77,8 @@
     "footerNote": "Free, open source (MIT), no signup."
   },
   "Footer": {
-    "repository": "Repository"
+    "repository": "Repository",
+    "nameMeaning": "<i>M</i>emory, <i>I</i>nsight & <i>N</i>etworked <i>D</i>ecisions"
   },
   "NodeGraph": {
     "caption": "click a node · example from the vault",

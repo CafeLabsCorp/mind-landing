@@ -32,7 +32,12 @@ export function Hero() {
             <br />
             <span className="text-green">{t("titleAccent")}</span>
           </h1>
-          <p className="mt-5.5 max-w-[540px] text-lg leading-[1.6] text-muted max-[860px]:text-base">
+          <p className="mt-4 font-mono text-[13.5px] text-subtle">
+            {t.rich("nameMeaning", {
+              i: (chunks) => <span className="text-green">{chunks}</span>,
+            })}
+          </p>
+          <p className="mt-4.5 max-w-[540px] text-lg leading-[1.6] text-muted max-[860px]:text-base">
             {t.rich("subtitle", {
               strong: (chunks) => <strong className="font-semibold text-fg">{chunks}</strong>,
             })}

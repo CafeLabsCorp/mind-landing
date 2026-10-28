@@ -9,9 +9,16 @@ export function Footer() {
   return (
     <footer className="border-t border-border py-9">
       <div className="mx-auto flex max-w-[1120px] flex-wrap items-center justify-between gap-3.5 px-6">
-        <a className="flex items-center text-fg no-underline" href="#top">
-          <MindLogo className="h-5 w-auto" />
-        </a>
+        <div className="flex flex-wrap items-center gap-x-3.5 gap-y-2">
+          <a className="flex items-center text-fg no-underline" href="#top">
+            <MindLogo className="h-5 w-auto" />
+          </a>
+          <span className="font-mono text-[12.5px] text-subtle">
+            {t.rich("nameMeaning", {
+              i: (chunks) => <span className="text-green">{chunks}</span>,
+            })}
+          </span>
+        </div>
         <div className="flex gap-5 text-[13.5px] text-subtle">
           <GitHubLink
             location="footer"
