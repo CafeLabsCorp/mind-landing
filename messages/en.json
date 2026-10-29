@@ -94,7 +94,7 @@
   "SetupCommands": {
     "step1": "1) create an empty, private repo first (GitHub, GitLab...) — no README/gitignore",
     "step2": "2) setup and first conversation",
-    "originPlaceholder": "<your-empty-repo-url>"
+    "originPlaceholder": "'<'your-empty-repo-url'>'"
   },
   "Graph": {
     "mind": {

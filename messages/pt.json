@@ -94,7 +94,7 @@
   "SetupCommands": {
     "step1": "1) crie antes um repo vazio e privado (GitHub, GitLab...) — sem README/gitignore",
     "step2": "2) setup e primeira conversa",
-    "originPlaceholder": "<url-do-seu-repo-vazio>"
+    "originPlaceholder": "'<'url-do-seu-repo-vazio'>'"
   },
   "Graph": {
     "mind": {
