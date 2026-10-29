@@ -5,6 +5,7 @@ import { GitHubLink } from "@/components/GitHubLink";
 import { GitHubIcon } from "@/components/icons";
 import { MindLogo } from "@/components/MindLogo";
 import { LanguageSwitcher } from "@/components/ui/language-switcher";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 export function SiteHeader() {
   const [scrolled, setScrolled] = useState(false);
@@ -25,6 +26,7 @@ export function SiteHeader() {
           <MindLogo className="h-6 w-auto" />
         </a>
         <div className="flex items-center gap-3">
+          <ThemeToggle />
           <LanguageSwitcher />
           <GitHubLink
             location="header"

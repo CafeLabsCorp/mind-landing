@@ -148,5 +148,10 @@
   },
   "LanguageSwitcher": {
     "label": "Language"
+  },
+  "ThemeToggle": {
+    "label": "Theme",
+    "toLight": "Switch to light theme",
+    "toDark": "Switch to dark theme"
   }
 }

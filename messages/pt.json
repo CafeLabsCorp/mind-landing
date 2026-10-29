@@ -148,5 +148,10 @@
   },
   "LanguageSwitcher": {
     "label": "Idioma"
+  },
+  "ThemeToggle": {
+    "label": "Tema",
+    "toLight": "Mudar pro tema claro",
+    "toDark": "Mudar pro tema escuro"
   }
 }

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, JetBrains_Mono, Space_Grotesk } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
+import { ThemeProvider } from "next-themes";
 import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { ToastProvider } from "@/components/Toast";
@@ -56,15 +57,20 @@ export default async function RootLayout({
   }
 
   return (
+    // suppressHydrationWarning: next-themes põe data-theme no <html> antes
+    // de o React hidratar (script anti-flash), o que difere do HTML do servidor.
     <html
       lang={locale}
+      suppressHydrationWarning
       className={`${spaceGrotesk.variable} ${inter.variable} ${jetBrainsMono.variable}`}
     >
       <body>
-        <NextIntlClientProvider>
-          <ToastProvider>{children}</ToastProvider>
-          <Analytics />
-        </NextIntlClientProvider>
+        <ThemeProvider attribute="data-theme" defaultTheme="system" enableSystem>
+          <NextIntlClientProvider>
+            <ToastProvider>{children}</ToastProvider>
+            <Analytics />
+          </NextIntlClientProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

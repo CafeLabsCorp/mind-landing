@@ -48,8 +48,10 @@
   color-scheme: dark;
 }
 
+/* Light theme: follows the system unless the visitor picked a theme in
+   the header toggle (next-themes sets data-theme on <html>). */
 @media (prefers-color-scheme: light) {
-  :root {
+  :root:not([data-theme="dark"]) {
     --bg: #f9f9f7;
     --surface: #fcfcfb;
     --surface-2: #f1f0ec;
@@ -63,6 +65,21 @@
     --blue: #1e5aa8;
     color-scheme: light;
   }
+}
+
+:root[data-theme="light"] {
+  --bg: #f9f9f7;
+  --surface: #fcfcfb;
+  --surface-2: #f1f0ec;
+  --code-bg: #111110;
+  --fg: #0b0b0b;
+  --muted: #52514e;
+  --subtle: #898781;
+  --border: rgba(11, 11, 11, 0.1);
+  --green: #1a7f37;
+  --green-dim: #166f30;
+  --blue: #1e5aa8;
+  color-scheme: light;
 }
 
 * {
