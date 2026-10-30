@@ -18,6 +18,7 @@
   --color-green: var(--green);
   --color-green-dim: var(--green-dim);
   --color-blue: var(--blue);
+  --color-on-green: var(--on-green);
 }
 
 /* ---------- design tokens (ported 1:1 from the approved mockup) ---------- */
@@ -33,14 +34,15 @@
   --green: #3fb950;
   --green-dim: #2ea043;
   --blue: #5b9eea;
-  /* --code-bg stays dark in both themes (it's the "always-dark" surface),
-     so anything drawn on it needs its own fixed colors instead of --fg/
-     --muted/--subtle/--green, which flip with the theme and go near-black
-     on it in light mode. Not redefined in the light media query below —
-     that's the point. */
+  /* Text drawn on --code-bg (terminal, code blocks) uses its own tokens
+     instead of --fg/--muted/--subtle/--green, so the code surface can be
+     tuned separately from the page. Both flip with the theme below. */
   --on-code: #c3c2b7;
   --on-code-subtle: #8a887f;
   --on-code-accent: #3fb950;
+  /* Text on solid green buttons: dark on the bright dark-theme green,
+     white on the deeper light-theme green. */
+  --on-green: #08150a;
   --radius: 14px;
   --font-display-fallback: "Space Grotesk", system-ui, sans-serif;
   --font-body-fallback: "Inter", system-ui, sans-serif;
@@ -55,7 +57,12 @@
     --bg: #f9f9f7;
     --surface: #fcfcfb;
     --surface-2: #f1f0ec;
-    --code-bg: #111110;
+    --code-bg: #f1f0ec;
+    --on-code: #3b3a36;
+    --on-code-subtle: #77756f;
+    --on-code-accent: #1a7f37;
+  --on-green: #ffffff;
+    --on-green: #ffffff;
     --fg: #0b0b0b;
     --muted: #52514e;
     --subtle: #898781;
@@ -71,7 +78,10 @@
   --bg: #f9f9f7;
   --surface: #fcfcfb;
   --surface-2: #f1f0ec;
-  --code-bg: #111110;
+  --code-bg: #f1f0ec;
+  --on-code: #3b3a36;
+  --on-code-subtle: #77756f;
+  --on-code-accent: #1a7f37;
   --fg: #0b0b0b;
   --muted: #52514e;
   --subtle: #898781;

@@ -25,7 +25,7 @@ export function FinalCta() {
         >
           <button
             type="button"
-            className="btn-primary inline-flex min-h-12 items-center gap-2.5 rounded-[10px] border border-transparent bg-green px-5.5 py-[13px] text-[15px] font-semibold text-[#08150a] transition-[transform,filter] duration-150 ease-out hover:brightness-110 active:scale-[0.98]"
+            className="btn-primary inline-flex min-h-12 items-center gap-2.5 rounded-[10px] border border-transparent bg-green px-5.5 py-[13px] text-[15px] font-semibold text-on-green transition-[transform,filter] duration-150 ease-out hover:brightness-110 active:scale-[0.98]"
             onClick={copy}
           >
             <CopyIcon />
