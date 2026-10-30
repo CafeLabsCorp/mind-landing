@@ -65,7 +65,7 @@ export default async function RootLayout({
       className={`${spaceGrotesk.variable} ${inter.variable} ${jetBrainsMono.variable}`}
     >
       <body>
-        <ThemeProvider attribute="data-theme" defaultTheme="system" enableSystem>
+        <ThemeProvider attribute="data-theme" defaultTheme="dark" enableSystem={false}>
           <NextIntlClientProvider>
             <ToastProvider>{children}</ToastProvider>
             <Analytics />
